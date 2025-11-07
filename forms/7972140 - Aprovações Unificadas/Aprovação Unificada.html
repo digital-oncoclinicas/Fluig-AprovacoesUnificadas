@@ -1,0 +1,485 @@
+<html>
+	<head>
+		<!-- CONTROLE DE VERSAO 
+			SM2CE - AGO.24 - PROPJETO ALCADAS - 24-25
+		-->
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Aprovações Unificadas - Oncoclinicas</title>
+
+		<link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css"/>
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+		<script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+
+		<!-- CSS E CUSTOM -->
+		<link type="text/css" rel="stylesheet" href="css/custom.css" />
+		<link type="text/css" rel="stylesheet" href="css/modern.css" />
+		<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+		<script type="text/javascript" src="custom/custom.js?2504a"></script>
+		<script type="text/javascript" src="custom/validate.js?2504a"></script>
+
+	</head>
+	<body>
+		<!-- Cabeçalho Moderno -->
+		<div class="header-modern">
+			<div class="header-content-modern">
+				<img src="images/novo_logo.png" alt="Logo Oncoclinicas" class="logo-main">
+				<div class="header-text-modern">
+					<h1 id="spDADOS_WF">Aprovações Unificadas</h1>
+					<p class="subtitle-modern">Gerenciamento de Aprovações Unificadas conforme alçadas</p>
+				</div>
+				<img src="images/FAQ.png" alt="Logo FAQ" class="logo-faq">
+			</div>
+		</div>
+
+		<div class="fluig-style-guide">
+			<div class="modern-container">
+				<form name="form" role="form">
+
+				<!-- Campos Hidden -->
+				<div class="hidden-inputs">
+					<input type="hidden" name="codSolicitante" id="codSolicitante" />
+					<input type="hidden" name="usrCriacao"     id="usrCriacao" />
+					<input type="hidden" name="nomeCriacao"    id="nomeCriacao" />
+					<input type="hidden" name="operacao"       id="operacao" />
+					<input type="hidden" name="poolAbertura"   id="poolAbertura" />
+					<input type="hidden" name="cdFilial" 	   id="cdFilial" />
+					<input type="hidden" name="cdCentroCusto"  id="cdCentroCusto" />
+					<input type="hidden" name="cdClasseValor"  id="cdClasseValor" />
+				</div>
+
+				<!-- DADOS DA SOLICITACAO -->
+				<div class="panel-modern panel-info-modern">
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern">
+							<i class="fa fa-user"></i> Dados da Solicitação
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<div class="row-modern">
+							<div class="col-modern col-md-3-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Solicitante</label>
+									<input type="text" class="form-control-modern" id="nomeSolicitante" name="nomeSolicitante" readonly>
+								</div>
+							</div>
+							<div class="col-modern col-md-3-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">E-mail</label>
+									<input type="text" class="form-control-modern" id="emailSolicitante" name="emailSolicitante" readonly>
+								</div>
+							</div>
+							<div class="col-modern col-md-3-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Data Solicitação</label>
+									<input type="text" class="form-control-modern" id="dtAberturaChamado" name="dtAberturaChamado" readonly>
+								</div>
+							</div>
+							<div class="col-modern col-md-3-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Nº WF Aprovação</label>
+									<input type="text" class="form-control-modern" id="numChamado" name="numChamado" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- WF DE ORIGEM E VALOR PARA APROVACAO -->
+				<div class="panel-modern panel-info-modern">
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern">
+							<i class="fa fa-file-text"></i> Processo de Origem
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<div class="row-modern">
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Nº WF Origem</label>
+									<input type="text" class="form-control-modern" id="numChamadoOrigem" name="numChamadoOrigem" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-4-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Fornecedor/Favorecido</label>
+									<input type="text" class="form-control-modern" id="nomeFornecedor" name="nomeFornecedor" readonly />
+								</div>
+							</div>
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Valor</label>
+									<input type="text" class="form-control-modern" id="valorSolicitado" name="valorSolicitado" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Cotação</label>
+									<input type="text" class="form-control-modern" id="cotacaoMOEDA" name="cotacaoMOEDA" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Área</label>
+									<input type="text" class="form-control-modern" id="area" name="area" readonly />
+								</div>
+							</div>
+						</div>
+						<div class="row-modern">
+							<div class="col-modern col-md-4-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Filial</label>
+									<input type="text" class="form-control-modern" id="filial" name="filial" readonly />
+								</div>
+							</div>
+							<div class="col-modern col-md-4-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Centro de Custo</label>
+									<input type="text" class="form-control-modern" id="centroCusto" name="centroCusto" readonly />
+								</div>
+							</div>
+							<div class="col-modern col-md-4-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Classe de Valor</label>
+									<input type="text" class="form-control-modern" id="classeValor" name="classeValor" readonly />
+								</div>
+							</div>
+						</div>
+						<div class="row-modern">
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Carta de Exceção</label>
+									<input type="text" class="form-control-modern" id="cartaExcecao" name="cartaExcecao" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Valor da Carta</label>
+									<input type="text" class="form-control-modern" id="valorCartaExcecao" name="valorCartaExcecao" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-4-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Tipo de Solicitação</label>
+									<input class="form-control-modern" id="tipoSolicitacao" name="tipoSolicitacao" readonly style="text-align: center;" />
+								</div>
+							</div>
+							<div class="col-modern col-md-2-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Nível</label>
+									<input class="form-control-modern" id="nivelValidacao" name="nivelValidacao" readonly style="text-align: center;" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- APROVACAO -->
+				<div class="panel-modern panel-info-modern" id="pnlAprovador">
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern">
+							<i class="fa fa-check-circle"></i> Aprovação
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<input type="hidden" id="seAprovado" name="seAprovado" value="nao_confirmado">
+						<div class="row-modern">
+							<div class="col-modern col-md-6-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Aprovador</label>
+									<input type="text" id="nomeAprovador" name="nomeAprovador" class="form-control-modern" readonly>
+								</div>
+							</div>
+							<div class="col-modern col-md-6-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Aprovado?</label>
+									<div class="radio-group-modern">
+										<div class="radio-modern radio-success-modern">
+											<input type="radio" name="rdAprovado" value="sim" id="rdAprovado-1" onchange="observacaoAPV('sim');">
+											<label for="rdAprovado-1">Sim</label>
+										</div>
+										<div class="radio-modern radio-danger-modern">
+											<input type="radio" name="rdAprovado" value="nao" id="rdAprovado-2" onchange="observacaoAPV('nao');">
+											<label for="rdAprovado-2">Não</label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row-modern">
+							<div class="col-modern col-md-12-modern">
+								<div class="form-group-modern">
+									<label class="control-label-modern">Observações</label>
+									<textarea class="form-control-modern" rows="3" name="txtObservacao" id="txtObservacao" placeholder="Digite aqui a observação de aprovação..."></textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- TABELA DE APROVADORES -->
+				<div class="panel-modern panel-warning-modern" style="display: none;"> 
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern">
+							<i class="fa fa-users"></i> Aprovadores
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<div class="table-responsive">
+							<table id="targetAprovadores" tablename="targetAprovadores" nodeletebutton="true" noaddbutton="true" class="table-modern">
+								<thead>
+									<tr>
+										<th>Sequência</th>
+										<th>Login</th>
+										<th>Valor Teto</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="lnApv">
+										<td><input type="text" id="apvSequencia" name="apvSequencia" readonly class="form-control" /></td>
+										<td><input type="text" id="apvLogin"     name="apvLogin"     readonly class="form-control" /></td>
+										<td><input type="text" id="apvValorTeto" name="apvValorTeto" readonly class="form-control" /></td>
+										<td><input type="text" id="apvStatus"    name="apvStatus"    readonly class="form-control" value="nao_confirmado"/></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- REGISTRO DAS APROVACOES -->
+				<div class="panel-modern panel-info-modern" id="pnlAprovacoes">
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern" id="lblAprovacoes">
+							<i class="fa fa-history"></i> Histórico de Aprovações
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<div class="table-responsive">
+							<table id="targetAutorizacoes" tablename="targetAutorizacoes" nodeletebutton="true"
+								noaddbutton="true" class="table-modern">
+								<thead>
+									<tr>
+										<th>Quando</th>
+										<th>Responsável</th>
+										<th>Substituto</th>
+										<th>E-mail</th>
+										<th>Decisão</th>
+										<th>Obs</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="lnHST">
+										<td><input type="text" id="apvQuando"      name="apvQuando"      readonly class="form-control" /></td>
+										<td><input type="text" id="apvNome"        name="apvNome"        readonly class="form-control" /></td>
+										<td><input type="text" id="apvSubstituto"  name="apvSubstituto"  readonly class="form-control" /></td>
+										<td><input type="text" id="apvEMail"       name="apvEMail"       readonly class="form-control" /></td>
+										<td><input type="text" id="apvDecisao"     name="apvDecisao"     readonly class="form-control" /></td>
+										<td><input type="text" id="apvObs"         name="apvObs"         readonly class="form-control" /></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- DOCUMENTO ORIGINAL -->
+				<div class="panel-modern panel-info-modern">
+					<div class="panel-heading-modern">
+						<h4 class="panel-title-modern">
+							<i class="fa fa-file-pdf-o"></i> Documento Original
+						</h4>
+					</div>
+					<div class="panel-body-modern">
+						<input type="hidden" id="orig_documentid"     name="orig_documentid">	
+						<input type="hidden" id="orig_version"        name="orig_version">
+						<input type="hidden" id="orig_docSolicitacao" name="orig_docSolicitacao">
+						<div id="divDocument">
+							<!-- IMAGEM DO DOCUMENTO ORIGINAL - CARGA ATRAVÉS DA FUNÇÃO showDocument -->
+						</div>
+					</div>
+				</div>
+
+				<!-- Rodapé -->
+				<div class="footer-modern">
+					<p>© 2025 Oncoclinicas - Sistema de Aprovações Unificadas</p>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+	<!-- FAQ embutido para evitar dependência de arquivo externo -->
+	<script type="text/markdown" id="faq-md" style="display:none;">
+# 🤔 Perguntas Frequentes - Aprovações Unificadas
+
+---
+
+## 📝 **Como funciona o sistema?**
+
+O sistema **automaticamente identifica** quem precisa aprovar sua solicitação! Você não precisa escolher os aprovadores.
+
+**O que o sistema considera:**
+- 💰 **Valor da solicitação** - Quanto maior, mais níveis de aprovação
+- 📋 **Tipo de solicitação** - Reembolso, adiantamento, pagamento, etc.
+- 🏢 **Centro de custo** - Cada área tem seus aprovadores específicos  
+- 🌍 **Filial** - Aprovadores locais e regionais
+
+---
+
+## 👥 **Quem pode aprovar minha solicitação?**
+
+Apenas pessoas **previamente cadastradas** nas regras de aprovação podem aprovar sua solicitação.
+
+**Critérios automáticos:**
+- **Classe de Valor** - Limites de aprovação por valor
+- **Centro de Custo** - Gestores da sua área
+- **Filial** - Responsáveis locais  
+- **Tipo de Solicitação** - Especialistas em cada processo
+
+💡 **Dica:** Você pode ver quem são os aprovadores na seção *"Histórico de Aprovações"* do processo.
+
+---
+
+## 📜 **O que é "Carta de Exceção"?**
+
+É um mecanismo especial que permite usar um **valor diferente** para determinar os aprovadores.
+
+**Quando usar:**
+- ✅ Autorização prévia para valor específico
+- 🚨 Casos de emergência com limite pré-aprovado
+- 📋 Situações especiais da diretoria
+
+**Como funciona:** O sistema usa o *"Valor da Carta"* em vez do valor normal para definir aprovadores.
+
+⚠️ **Atenção:** Use apenas quando orientado pela área financeira ou gestoria.
+
+---
+
+## 🚫 **Posso aprovar minha própria solicitação?**
+
+**NÃO!** O sistema evita conflitos de interesse automaticamente.
+
+**O que acontece:**
+1. 🔍 Sistema detecta auto-aprovação
+2. 🔄 Procura aprovador financeiro alternativo  
+3. ✋ Se não encontrar, exige intervenção manual
+
+🛡️ **Governança:** Garante segregação de funções e conformidade.
+
+---
+
+## ⏰ **Quanto tempo leva para aprovação?**
+
+**Fatores que influenciam:**
+- 📊 **Quantidade de aprovadores** - Valores maiores = mais níveis
+- 🏖️ **Disponibilidade** - Férias, viagens, etc.
+- 📄 **Documentação completa** - Acelera o processo
+
+⏱️ **Prazo médio:** 2 a 5 dias úteis para aprovações simples
+
+🚀 **Para acelerar:** Certifique-se que todos os campos estão corretos e documentos anexados.
+
+---
+
+## 👀 **Como acompanhar minha solicitação?**
+
+**Formas de acompanhamento:**
+1. 📈 **Histórico de Aprovações** - Quem já aprovou e quem falta
+2. 📧 **Notificações por e-mail** - Atualizações automáticas  
+3. 💻 **Portal Fluig** - "Minhas Solicitações"
+
+ℹ️ **Status disponíveis:** Aguardando → Em aprovação → Aprovado/Rejeitado
+
+---
+
+## ❌ **Por que minha solicitação foi bloqueada?**
+
+**Principais erros:**
+
+### 💰 **Valor inválido**
+Campo "Valor" vazio, zerado ou formato incorreto
+
+### 👥 **Aprovador não encontrado** 
+Nenhum aprovador cadastrado para sua Classe de Valor ou Centro de Custo
+
+### 🚫 **Usuário bloqueado**
+Aprovador inativo ou com cadastro duplicado
+
+### 🏢 **Dados incompletos**
+Filial ou Centro de Custo não informados
+
+🔧 **Solução:** Anote a mensagem de erro e número do processo, depois abra chamado no ISM.
+
+---
+
+## 🤷 **Por que meu nome não apareceu como aprovador?**
+
+**Possíveis motivos:**
+
+- ✅ **Já aprovou antes** - Sistema ignora aprovações duplicadas
+- ⚖️ **Conflito de interesse** - Você é o solicitante  
+- 🔧 **Filtros especiais** - Regras específicas por operação
+- 📋 **Cadastro irregular** - Usuário bloqueado ou duplicado
+
+📞 **Solução:** Contate suporte técnico com número do processo.
+
+---
+
+## 💱 **Como funciona conversão de moeda?**
+
+**Detecção automática por símbolos:**
+- 🇧🇷 **R$** - Real Brasileiro
+- 🇺🇸 **US$** - Dólar Americano  
+- 🇪🇺 **€** - Euro
+- 🌍 **﷼** - Outras moedas
+
+**Processo de cotação:**
+1. 🏦 Busca cotação atual no Banco Central
+2. 📊 Se falhar, usa valores padrão configurados
+3. ➡️ Converte para Real para determinar aprovadores
+
+🔄 **Automático:** Você não precisa se preocupar com cotação.
+
+---
+
+## 🆘 **Como obter suporte?**
+
+### 📱 **Para problemas técnicos:**
+
+**Caminho no ISM:**
+`SM → Tecnologia da Informação → Sistemas Corporativos → Fluig → Reportar Problemas`
+
+**Informações essenciais:**
+- 🔢 **Número do processo** (campo "Nº WF Aprovação")
+- ❌ **Mensagem de erro completa**  
+- 📸 **Print da tela** mostrando problema
+- 📋 **Dados:** Valor, Centro de Custo, Filial, Tipo de Solicitação
+
+### 👥 **Para dúvidas sobre regras:**
+- **Gestoria** - Regras de aprovação e políticas
+- **Área Financeira** - Questões sobre valores e categorias
+
+### 🚨 **Situação urgente?**
+Entre em contato pelo telefone ou chat interno.
+
+⏰ **Tempo de resposta:** Chamados atendidos em até 24h úteis.
+
+---
+
+## 📞 **Não encontrou sua dúvida?**
+
+**Não se preocupe! Estamos aqui para ajudar.**
+
+🎫 **Abra um chamado no ISM** para problemas técnicos  
+👥 **Fale com sua gestoria** para dúvidas sobre regras  
+🏦 **Contate área financeira** para questões de valores
+
+💬 **Lembre-se:** Sempre informe o número do processo para agilizar o atendimento!
+	</script>
+	
+</body>
+</html>

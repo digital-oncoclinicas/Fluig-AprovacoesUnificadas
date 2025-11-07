@@ -1,0 +1,61 @@
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos do Eclipse/IDE
+.project
+.settings/
+.metadata/
+.classpath
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.log
+*.bak
+*~
+
+# Arquivos compilados
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+
+# Arquivos do Node.js (se houver)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos específicos do Fluig que não devem ser versionados
+*.cache
+*.fluigc
+
+# Diretórios de compilação do widget
+wcm/widget/*/target/
+
+# Arquivos de backup
+*-backup.*
+*.orig
+
+# Arquivos de desenvolvimento que não fazem parte do projeto final
+Complice/
+teste/
+*-TESTE.*
+*-teste.*
+
+# Arquivos de ambiente específico
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos do Windows
+*.lnk
+
+# Arquivos temporários do Office
+~$*

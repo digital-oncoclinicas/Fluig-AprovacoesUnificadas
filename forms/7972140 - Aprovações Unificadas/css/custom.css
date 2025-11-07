@@ -1,0 +1,417 @@
+:root {
+    --cor-branco: #fff;
+    --cor-preto: #000;
+    --cor-preto-rgb: 0, 0, 0; /* Para uso em rgba(var(--cor-preto-rgb), alpha) */
+
+    --cor-fundo-painel-destaque: #35b1a7;
+    --cor-texto-sobre-painel-destaque: var(--cor-branco);
+    --cor-texto-obrigatorio: #d10000;
+
+    --cor-select2-borda-foco: #0090ff;
+    /* Para a sombra do select2, usaremos rgba(var(--cor-preto-rgb), 0.5) diretamente */
+
+    --cor-fundo-tooltip: var(--cor-branco);
+    --cor-texto-tooltip: var(--cor-preto);
+
+    --cor-fundo-pagina: #f4f7f6;
+    --cor-borda-padrao: #ddd; /* Usado em cards e outras bordas gerais */
+    --cor-texto-principal: #333;
+    --cor-borda-input: #ccc;
+
+    --cor-borda-input-foco: #007bff;
+    --cor-borda-input-foco-rgb: 0, 123, 255; /* Para uso em rgba(var(--cor-borda-input-foco-rgb), alpha) */
+
+    --cor-fundo-cabecalho-tabela: #f8f9fa;
+    --cor-borda-divisoria: #e0e0e0; /* Para <hr> */
+    --cor-fundo-card-alternativo: #fdfdfd; /* Para seções específicas de card-body */
+    --cor-fundo-input-readonly: #e9ecef;
+    --cor-borda-subtitulo-card: #eee; /* Para borda inferior de h5 em cards */
+}
+
+span.select2-dropdown.select2-dropdown {
+    width: calc(100% - 79px) !important;
+    border: 1px solid var(--cor-select2-borda-foco);
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px rgba(var(--cor-preto-rgb), 0.5);
+}
+
+span.select2-container {
+    left: 0px !important;
+}
+
+/* Ajusta a quantidade de caracteres dentro do input */
+.select2-search__field {
+    width: 100% !important;
+}
+
+.select2-search {
+    width: 100% !important;
+}
+
+.select2-selection__rendered {
+    display: flex !important;
+}
+
+.formee-req {
+    font-weight: bold;
+/*	font-style:normal;*/
+    color: var(--cor-texto-obrigatorio);
+    font-size:1.2em;
+    line-height: .85em;
+}
+
+td {
+    padding: 2px !important;
+}
+
+.panel-estilizado {
+    background-color: var(--cor-fundo-painel-destaque) !important;
+    color: var(--cor-texto-sobre-painel-destaque) !important;
+    font-size: 16px !important;
+}
+[data-tooltip] {
+    position: relative;
+    font-weight: bold;
+}
+
+[data-tooltip]:after {
+    display: none;
+    position: absolute;
+    top: -5px;
+    padding: 5px;
+    border-radius: 3px;
+    left: calc(100% + 2px);
+    content: attr(data-tooltip);
+    white-space: nowrap;
+    background-color: var(--cor-fundo-tooltip);
+    color: var(--cor-texto-tooltip);
+}
+
+[data-tooltip]:hover:after {
+    display: block;
+}
+
+/* Melhorias Gerais de Layout e Espaçamento */
+body {
+    background-color: var(--cor-fundo-pagina);
+}
+
+.fluig-style-guide {
+    background-color: transparent; /* Remove o fundo padrão se o body tiver cor */
+}
+
+/* Estilização dos Cards */
+.card {
+    border: 1px solid var(--cor-borda-padrao);
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(var(--cor-preto-rgb), 0.05);
+    background-color: var(--cor-branco);
+}
+
+.card-header.panel-estilizado {
+    /* As cores de fundo e texto já são definidas em .panel-estilizado */
+    border-bottom: 1px solid var(--cor-borda-padrao);
+    padding: 15px 20px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Melhorias nos Elementos de Formulário */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--cor-texto-principal);
+}
+
+.form-control,
+input[type="zoom"] {
+    border-radius: 5px;
+    border: 1px solid var(--cor-borda-input); /* Adicionado '1px solid' para garantir a borda */
+    padding: 10px 12px;
+    height: auto;
+    box-shadow: inset 0 1px 2px rgba(var(--cor-preto-rgb), 0.075);
+}
+
+.form-control:focus,
+input[type="zoom"]:focus {
+    border-color: var(--cor-borda-input-foco);
+    box-shadow: 0 0 0 0.2rem rgba(var(--cor-borda-input-foco-rgb), 0.25);
+}
+
+textarea.form-control {
+    min-height: 100px;
+}
+
+/* Estilização de Botões */
+.btn {
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.btn-primary:hover {
+    /* Exemplo: background-color: var(--cor-primaria-aplicacao-escura); */
+    /* Exemplo: border-color: var(--cor-primaria-aplicacao-muito-escura); */
+    transform: translateY(-1px);
+}
+
+/* Melhorias em Tabelas */
+.table th,
+.table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-weight: 600;
+    background-color: var(--cor-fundo-cabecalho-tabela);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(var(--cor-preto-rgb), 0.03);
+}
+
+/* Linhas Horizontais */
+hr {
+    border-top: 1px solid var(--cor-borda-divisoria);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Ajustes específicos para elementos com IDs ou classes especiais, se necessário */
+#pnlAprovador .card-body,
+#pnlAprovacoes .card-body,
+#pnlDocuSign .card-body {
+    background-color: var(--cor-fundo-card-alternativo);
+}
+
+/* Ajustes para inputs readonly para melhor visualização */
+input[readonly="readonly"],
+input:read-only {
+    background-color: var(--cor-fundo-input-readonly);
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Ajustes para Zoom */
+input[data-zoom] {
+    background-color: var(--cor-branco) !important;
+}
+
+/* Títulos de seções dentro de cards */
+.card-body h5 {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+    border-bottom: 1px solid var(--cor-borda-subtitulo-card);
+    padding-bottom: 8px;
+}
+
+/* Estilos para o cabeçalho moderno */
+.header-section {
+    background: linear-gradient(135deg, #35b1a7 0%, #2a9389 100%);
+    border-radius: 12px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(53, 177, 167, 0.15);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    padding: 20px 25px;
+    gap: 20px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.logo-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: white;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title-section {
+    flex: 1;
+    min-width: 0; /* Permite que o texto seja truncado se necessário */
+}
+
+.title-section h1 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+}
+
+.title-section p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .title-section h1 {
+        font-size: 1.5rem;
+    }
+    
+    .title-section p {
+        font-size: 0.9rem;
+    }
+    
+    .logo-img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Garantir proporção consistente entre logo principal e ícone FAQ */
+.logo-main,
+.logo-faq,
+.logo-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: white;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste fino para o ícone FAQ: manter visual levemente mais discreto se necessário */
+.logo-faq {
+    width: 52px; /* leve redução para diferenciar visualmente */
+    height: 52px;
+    padding: 6px;
+}
+
+@media (max-width: 768px) {
+    .logo-main,
+    .logo-faq,
+    .logo-img {
+        width: 48px;
+        height: 48px;
+        padding: 6px;
+    }
+}
+
+/* Estilos específicos para FAQ - garante consistência visual */
+.logo-faq {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.logo-faq:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(53, 177, 167, 0.3);
+}
+
+.logo-faq:active {
+    transform: scale(0.95);
+}
+
+/* Tooltip para o ícone FAQ */
+.logo-faq::after {
+    content: "Clique para ver as perguntas frequentes";
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.logo-faq:hover::after {
+    opacity: 1;
+}
+
+/* Melhorias específicas para o modal do FAQ */
+.modal.modal-faq .modal-dialog {
+    max-width: 95%;
+    width: 1000px;
+}
+
+.modal.modal-faq .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal.modal-faq .modal-header {
+    background: linear-gradient(135deg, #35b1a7 0%, #2a9389 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+}
+
+.modal.modal-faq .modal-title {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal.modal-faq .close {
+    color: white;
+    opacity: 0.8;
+    font-size: 28px;
+    text-shadow: none;
+}
+
+.modal.modal-faq .close:hover {
+    opacity: 1;
+    color: white;
+}
+
+/* Responsividade aprimorada para FAQ */
+@media (max-width: 768px) {
+    .modal.modal-faq .modal-dialog {
+        max-width: 98%;
+        margin: 10px auto;
+    }
+    
+    .logo-faq::after {
+        display: none; /* Ocultar tooltip em mobile */
+    }
+}

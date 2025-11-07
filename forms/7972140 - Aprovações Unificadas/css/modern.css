@@ -1,0 +1,896 @@
+/* Variáveis CSS para cores */
+:root {
+    /* Cores principais */
+    --primary-color: #4fc3c7;
+    --primary-gradient-start: #4fc3c7;
+    --primary-gradient-end: #52d4a3;
+    --secondary-color: #58C2DC;
+    
+    /* Cores de fundo */
+    --background-color: #f8fafc;
+    --container-background: #ffffff;
+    --card-background: #ffffff;
+    --fieldset-background: #f8f9fa;
+    --search-background: #ffffff;
+    --footer-background: #f8f9fa;
+    
+    /* Cores de borda */
+    --border-color: #e1e5e9;
+    --section-divider-color: #e9ecef;
+    --fieldset-border-color: #e9ecef;
+    --footer-border-color: #e9ecef;
+    --accent-border-color: var(--primary-color);
+    
+    /* Cores de texto */
+    --text-color: #333333;
+    --text-info-color: #17a2b8;
+    --text-muted-color: #6c757d;
+    --white-text: #ffffff;
+    --required-color: #dc3545;
+    
+    /* Cores de botões */
+    --btn-primary-bg: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    --btn-success-bg: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --btn-danger-bg: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    --btn-info-bg: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    
+    /* Cores de sombra */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --shadow-dark: rgba(0, 0, 0, 0.2);
+    --focus-shadow: rgba(79, 195, 199, 0.1);
+    --hover-shadow: rgba(79, 195, 199, 0.4);
+    
+    /* Cores específicas */
+    --readonly-background: #f8f9fa;
+    --old-container-background: #F9F9F9;
+    --tabela-border: #BEBEBE;
+    
+    /* Novos estilos modernos */
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset e configurações gerais modernos */
+body {
+    background: var(--background-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Cabeçalho moderno */
+.header-modern {
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    color: var(--white-text);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+}
+
+.header-content-modern {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.logo-modern {
+    height: 4rem;
+    background: var(--white-text);
+    padding: 0.75rem;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    flex-shrink: 0;
+}
+
+.logo-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.header-text-modern {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.header-modern h1 {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+.subtitle-modern {
+    margin: 0;
+    font-size: 1.125rem;
+    opacity: 0.95;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Container moderno */
+.modern-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem;
+}
+
+/* Painéis modernos */
+.panel-modern {
+    background: var(--card-background);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+    border: none;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+
+.panel-modern:hover {
+    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-1px);
+}
+
+.panel-heading-modern {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white-text);
+    padding: 1.25rem 1.5rem;
+    border: none;
+    position: relative;
+}
+
+.panel-heading-modern::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.panel-title-modern {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-title-modern i {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.panel-body-modern {
+    padding: 2rem 1.5rem 1.5rem;
+}
+
+/* Seções específicas com cores diferentes */
+.panel-info-modern .panel-heading-modern {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+.panel-warning-modern .panel-heading-modern {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.panel-success-modern .panel-heading-modern {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.panel-primary-modern .panel-heading-modern {
+    background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+}
+
+.panel-approval-modern .panel-heading-modern {
+    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+}
+
+/* Campos de formulário modernos */
+.form-group-modern {
+    margin-bottom: 1.75rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-modern:last-child {
+    margin-bottom: 0;
+}
+
+.control-label-modern {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    line-height: 1.4;
+    min-height: 1.2rem;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    transition: var(--transition-smooth);
+    background: var(--container-background);
+    box-sizing: border-box;
+    min-height: 44px;
+    line-height: 1.5;
+}
+
+.form-control-modern:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-shadow);
+}
+
+.form-control-modern[readonly] {
+    background: var(--readonly-background);
+    color: var(--text-muted-color);
+}
+
+/* Textarea específico */
+.form-control-modern[rows] {
+    min-height: auto;
+    resize: vertical;
+}
+
+/* Botões modernos */
+.btn-modern {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    line-height: 1.5;
+    min-height: 44px;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.btn-primary-modern {
+    background: var(--btn-primary-bg);
+    color: var(--white-text);
+    box-shadow: var(--card-shadow);
+}
+
+.btn-primary-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.btn-success-modern {
+    background: var(--btn-success-bg);
+    color: var(--white-text);
+    box-shadow: var(--card-shadow);
+}
+
+.btn-success-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.btn-danger-modern {
+    background: var(--btn-danger-bg);
+    color: var(--white-text);
+    box-shadow: var(--card-shadow);
+}
+
+.btn-danger-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.btn-info-modern {
+    background: var(--btn-info-bg);
+    color: var(--white-text);
+    box-shadow: var(--card-shadow);
+}
+
+.btn-info-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+/* Grid responsivo */
+.row-modern {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.75rem;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.row-modern.align-start {
+    align-items: flex-start;
+}
+
+.row-modern.align-center {
+    align-items: center;
+}
+
+.col-modern {
+    padding: 0 0.75rem;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.col-md-1-modern { 
+    flex: 0 0 8.333333%; 
+    max-width: 8.333333%;
+    margin-bottom: 1.25rem;
+}
+
+.col-md-2-modern { 
+    flex: 0 0 16.666667%; 
+    max-width: 16.666667%;
+    margin-bottom: 1.25rem;
+}
+
+.col-md-3-modern { 
+    flex: 0 0 25%; 
+    max-width: 25%;
+    margin-bottom: 1.25rem;
+}
+
+.col-md-4-modern { 
+    flex: 0 0 33.333333%; 
+    max-width: 33.333333%;
+    margin-bottom: 1.25rem;
+}
+
+.col-md-6-modern { 
+    flex: 0 0 50%; 
+    max-width: 50%;
+    margin-bottom: 1.25rem;
+}
+
+.col-md-12-modern { 
+    flex: 0 0 100%; 
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+}
+
+/* Radio buttons modernos */
+.radio-group-modern {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.radio-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-smooth);
+}
+
+.radio-modern:hover {
+    background: var(--fieldset-background);
+}
+
+.radio-modern input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+.radio-modern label {
+    margin: 0;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.radio-success-modern {
+    color: #28a745;
+}
+
+.radio-danger-modern {
+    color: #dc3545;
+}
+
+/* Tabelas modernas */
+.table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: var(--card-background);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.table-modern thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white-text);
+}
+
+.table-modern thead th {
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-align: left;
+    border: none;
+}
+
+.table-modern tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+}
+
+.table-modern tbody tr:hover {
+    background: var(--fieldset-background);
+}
+
+.table-modern tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table-modern tbody td {
+    padding: 1rem;
+    border: none;
+}
+
+.table-modern .form-control {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Rodapé moderno */
+.footer-modern {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    color: var(--white-text);
+    text-align: center;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    font-size: 0.875rem;
+}
+
+.footer-modern p {
+    margin: 0;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+/* Inputs hidden */
+.hidden-inputs {
+    display: none;
+}
+
+/* Modal Moderno */
+.modal-modern {
+    z-index: 1050;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-modern .modal-dialog {
+    margin: 0;
+    max-width: 500px;
+    pointer-events: auto;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-modern .modal-content {
+    background-color: var(--card-background);
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-modern .modal-header {
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    color: var(--white-text);
+    padding: 1.5rem 2rem;
+    border: none;
+    position: relative;
+}
+
+.modal-modern .modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+}
+
+.modal-modern .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-modern .modal-title i {
+    font-size: 1.5rem;
+}
+
+.modal-modern .modal-body {
+    padding: 2rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.modal-modern .modal-body p {
+    margin: 0 0 1rem 0;
+}
+
+.modal-modern .modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.modal-modern .modal-footer {
+    background-color: var(--fieldset-background);
+    border: none;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.modal-modern .btn-modern {
+    background: var(--btn-primary-bg);
+    color: var(--white-text);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: var(--card-shadow);
+    min-width: 100px;
+}
+
+.modal-modern .btn-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.modal-modern .btn-modern:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-shadow);
+}
+
+.modal-modern .btn-danger-modern {
+    background: var(--btn-danger-bg);
+}
+
+.modal-modern .btn-success-modern {
+    background: var(--btn-success-bg);
+}
+
+.modal-modern .btn-info-modern {
+    background: var(--btn-info-bg);
+}
+
+/* Close button moderno */
+.modal-modern .close {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--white-text);
+    font-size: 1.5rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    z-index: 2;
+}
+
+.modal-modern .close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Backdrop moderno */
+.modal-backdrop-modern {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Esconder backdrop do Bootstrap */
+.modal-backdrop {
+    display: none !important;
+}
+
+/* Garantir que o body não tenha scroll bloqueado */
+body.modal-open {
+    overflow: auto !important;
+    padding-right: 0 !important;
+}
+
+/* Animações do modal */
+.modal-modern.fade .modal-dialog {
+    transform: translate(0, -50px);
+    transition: transform 0.3s ease-out;
+}
+
+.modal-modern.show .modal-dialog {
+    transform: none;
+}
+
+/* Estilos específicos para mensagens do modal */
+.modal-messages {
+    color: var(--text-color);
+}
+
+.modal-message {
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.modal-message:last-child {
+    margin-bottom: 0;
+}
+
+/* Efeito typewriter para as mensagens */
+.modal-message.typewriter {
+    border-right: 2px solid var(--primary-color);
+    animation: blink-caret 1s infinite;
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-color); }
+}
+
+/* Modal responsivo */
+@media (max-width: 768px) {
+    .modal-modern .modal-dialog {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .modal-modern .modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-modern .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-modern .modal-footer {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-modern .modal-title {
+        font-size: 1.125rem;
+    }
+    
+    .modal-modern .close {
+        right: 1.25rem;
+    }
+}
+
+/* Estilos específicos para tipos de modal */
+.modal-modern.modal-success .modal-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.modal-modern.modal-danger .modal-header {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+
+.modal-modern.modal-warning .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.modal-modern.modal-info .modal-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+}
+
+/* Animação de entrada melhorada */
+.modal-modern.fade-in {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Efeito hover para o botão */
+.modal-modern .btn-modern:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .col-md-1-modern,
+    .col-md-2-modern,
+    .col-md-3-modern,
+    .col-md-4-modern,
+    .col-md-6-modern {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modern-container {
+        padding: 0 1rem 2rem;
+    }
+    
+    .header-modern {
+        padding: 1.5rem 0;
+    }
+    
+    .header-content-modern {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .header-text-modern {
+        align-items: center;
+    }
+    
+    .header-modern h1 {
+        font-size: 1.875rem;
+    }
+    
+    .subtitle-modern {
+        font-size: 0.95rem;
+    }
+    
+    .logo-modern {
+        height: 3rem;
+    }
+    
+    .radio-group-modern {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .table-modern {
+        font-size: 0.8rem;
+    }
+    
+    .table-modern thead th,
+    .table-modern tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .panel-body-modern {
+        padding: 1.5rem 1rem;
+    }
+    
+    .form-group-modern {
+        margin-bottom: 1.25rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panel-modern {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Compatibilidade com Fluig Style Guide */
+.fluig-style-guide .panel-modern {
+    animation: none;
+}
+
+.fluig-style-guide .form-control-modern {
+    font-family: inherit;
+}
+
+/* Ícones Font Awesome */
+.fa {
+    font-family: FontAwesome, sans-serif;
+}
+
+/* Ajustes específicos para campos do formulário */
+.form-section {
+    margin-bottom: 0;
+}
+
+/* Overrides para manter compatibilidade */
+.fluig-style-guide .form-control {
+    transition: var(--transition-smooth);
+}
+
+.fluig-style-guide .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-shadow);
+}
