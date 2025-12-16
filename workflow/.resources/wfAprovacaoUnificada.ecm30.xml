@@ -29,7 +29,7 @@
     <processDefinitionVersionPK>
       <companyId>1</companyId>
       <processId>Aprovação Conforme Alçadas</processId>
-      <version>136</version>
+      <version>119</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
     <formId>7640845</formId>
@@ -551,7 +551,7 @@
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>1</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Reprovado&quot;&#xd;
@@ -564,7 +564,7 @@
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>2</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition> verificaUltimoAprovador() == &quot;sim&quot; &amp;&amp; &#xd;
@@ -577,7 +577,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>3</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>verificaUltimoAprovador() == &quot;nao&quot; </condition>
@@ -589,7 +589,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>4</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>7</sequence>
       </conditionProcessStatePK>
       <condition>true || false</condition>
@@ -601,7 +601,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>1</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>20</sequence>
       </conditionProcessStatePK>
       <condition>verificaSeCargaAprovadores()==true</condition>
@@ -613,7 +613,7 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
         <expressionOrder>2</expressionOrder>
-        <version>136</version>
+        <version>119</version>
         <sequence>20</sequence>
       </conditionProcessStatePK>
       <condition>true || false</condition>
@@ -955,1022 +955,1022 @@ hAPI.getCardValue(&quot;seAprovado&quot;)==&quot;Aprovado&quot;</condition>
         <processId>wfAprovacaoUnificada</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>// Objeto para encapsular contexto e evitar variáveis globais
-var AprovacaoContext = {
-	// Flags de controle
-	lerFILIAIS: false,
-	lerCCUSTOS: false,
-	lerPA: false,
-	lerCV: false,
-	verCV: false,
-	verFILIAIS: false,
-	lerPA_VRVA: false,
-	
-	// Dados principais
-	CC: &apos;&apos;,
-	CC_Cod: &apos;&apos;,
-	filial: &apos;&apos;,
-	codFilial: &apos;&apos;,
-	usabilidade: &apos;&apos;,
-	cartaExcecao: &apos;&apos;,
-	valorSolicitado: &apos;&apos;,
-	valorCartaExcecao: &apos;&apos;,
-	operacao: &apos;&apos;,
-	CV: &apos;&apos;,
-	codCV: &apos;&apos;,
-	tipoSolicitacao: &apos;&apos;,
-	aprovadores: 0,
-	area: &apos;&apos;,
-	nomeFornecedor : &apos;&apos;,
-	cnpjFornecedor: &apos;&apos;,
-	
-	// Dados de processamento
-	usuarios: [],
-	nomesUsuarios: [], // Lista para controlar nomes de usuários já adicionados
-	origem: &apos;&apos;,
-	xSequencia: 0,
-	colleague: &apos;&apos;,
-	usuario: &apos;&apos;,
-	dsAprovadores: null
-};
-
-function servicetask13(attempt, message) {
-	var numChamado = getValue(&quot;WKNumProces&quot;);
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - INICIADO wf: &quot;+numChamado);
-
-	// ALTERAR USUARIO DE ABERTURA DO FLUXO DE ACORDO COM A ABERTURA DO FLUXO DE ORIGEM NO DATASET workflowProcess
-	var params = [];
-		params.push( DatasetFactory.createConstraint(&quot;workflowProcessPK.processInstanceId&quot;,numChamado,numChamado,ConstraintType.MUST) );
-	var dsProcesso = buscarDataset(&quot;workflowProcess&quot;, params);
-	var numChamadoOrigem = dsProcesso.getValue(0, &quot;sourceProcess&quot;);
-
-	var params = [];
-		params.push( DatasetFactory.createConstraint(&quot;workflowProcessPK.processInstanceId&quot;,numChamadoOrigem,numChamadoOrigem,ConstraintType.MUST) );
-	var dsProcessoOrigem = buscarDataset(&quot;workflowProcess&quot;, params);
-	if(dsProcessoOrigem.rowsCount &gt; 0){
-		// DATA DE CRIACAO PROCESSO PAI e CHAMADO ORIGEM
-		hAPI.setCardValue(&quot;numChamadoOrigem&quot; ,numChamadoOrigem );
-		hAPI.setCardValue(&quot;dtAberturaChamado&quot;,dsProcessoOrigem.getValue(0, &quot;startDateProcess&quot;) );
-
-		// USUARIO DE CRIACAO
-		var usuarioOrigem   = dsProcessoOrigem.getValue(0, &quot;requesterId&quot;);
-		if(usuarioOrigem != null &amp;&amp; usuarioOrigem != &quot;&quot;){
-			params = [];
-			params.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,usuarioOrigem,usuarioOrigem,ConstraintType.MUST) );
-			var dsColleague = buscarDataset(&quot;colleague&quot;, params);
-			if(dsColleague.rowsCount == 0) {
-				throw &quot;### Cadastro não encontrado ou usuário bloqueado para &quot;+usuarioOrigem;   
-			} else {
-				hAPI.setCardValue(&quot;usrCriacao&quot;       ,usuarioOrigem );
-				hAPI.setCardValue(&quot;nomeCriacao&quot;      ,dsColleague.getValue(0, &quot;colleagueName&quot;) );
-			} 
-		}
-	}
-
-	// PARAMETROS - usando contexto encapsulado
-	AprovacaoContext.CC                = String(hAPI.getCardValue(&quot;centroCusto&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);	 
-	AprovacaoContext.CC_Cod            = String(hAPI.getCardValue(&quot;cdCentroCusto&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.filial            = String(hAPI.getCardValue(&quot;filial&quot;				) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.codFilial         = String(hAPI.getCardValue(&quot;cdFilial&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.cartaExcecao      = String(hAPI.getCardValue(&quot;cartaExcecao&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.valorSolicitado   = String(hAPI.getCardValue(&quot;valorSolicitado&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.valorCartaExcecao = String(hAPI.getCardValue(&quot;valorCartaExcecao&quot;	) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.operacao          = String(hAPI.getCardValue(&quot;operacao&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;); 
-	AprovacaoContext.CV                = String(hAPI.getCardValue(&quot;classeValor&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.codCV             = String(hAPI.getCardValue(&quot;cdClasseValor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.tipoSolicitacao   = String(hAPI.getCardValue(&quot;tipoSolicitacao&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.area              = String(hAPI.getCardValue(&quot;area&quot;				) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.aprovadores       = 0;
-	AprovacaoContext.usabilidade       = &apos;&apos;; // usada somente para PA - pegar usabilidade da filial
-	AprovacaoContext.nomeFornecedor    = String(hAPI.getCardValue(&quot;nomeFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);
-	AprovacaoContext.cnpjFornecedor    = String(hAPI.getCardValue(&quot;cnpjFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;).replace(/[^\d]+/g,&apos;&apos;); // somente numeros
-
-	// SEGURANCA FILIAL
-	if(AprovacaoContext.codFilial==&apos;&apos; || isNaN(parseInt(AprovacaoContext.codFilial))){
-		// RECUPERAR CODIGO
-		var xFilial = AprovacaoContext.filial.substring(0,AprovacaoContext.filial.indexOf(&apos;-&apos;) -1).trim();
-		hAPI.setCardValue(&apos;cdFilial&apos;,xFilial);
-		AprovacaoContext.codFilial=xFilial;
-
-	} else if(AprovacaoContext.filial==&apos;&apos; || AprovacaoContext.filial==null){
-		// RECUPERAR FILTRO
-		params = [];
-		params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
-		var dsFilial = buscarDataset(&quot;ds_Filiais&quot;, params);
-		if(dsFilial.rowsCount &gt;0) {
-			AprovacaoContext.filial = dsFilial.getValue(0, &quot;FILTRO&quot;);
-			hAPI.setCardValue(&apos;filial&apos;,AprovacaoContext.filial);
-		}
-	}
-
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - PARAMETROS&quot;);
-	log.dir(AprovacaoContext.nomeFornecedor);
-	log.dir(AprovacaoContext.CC);
-	log.dir(AprovacaoContext.CC_Cod);
-	log.dir(AprovacaoContext.filial);
-	log.dir(AprovacaoContext.codFilial);
-	log.dir(AprovacaoContext.cartaExcecao);
-	log.dir(AprovacaoContext.valorSolicitado);
-	log.dir(AprovacaoContext.valorCartaExcecao);
-	log.dir(AprovacaoContext.operacao);
-	log.dir(AprovacaoContext.CV);
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - PARAMETROS fim&quot;);
-
-	// CLASSE DE VALOR
-	if(AprovacaoContext.codCV== &apos;&apos;)
-		if(AprovacaoContext.CV != null &amp;&amp; AprovacaoContext.CV != &quot;&quot;){
-			AprovacaoContext.codCV = AprovacaoContext.CV.split(&apos; - &apos;)[0];
-			if(AprovacaoContext.codCV == null || AprovacaoContext.codCV == &quot;&quot;)
-				throw &quot;### Falha na leitura da classe de valor. Favor abrir chamado no ISM.&quot;;
-		} 
-
-	// SEGURANCA CODIGO CENTRO DE CUSTO 90010379 - DIRETORIA HOSPITALAR (OPERACOES)
-	// CENTRO DE CUSTO PODE VIR UNICO OU COM VARIOS CENTROS DE CUSTOS SEPARADOS POR VIRGULA
-	AprovacaoContext.lerCCUSTOS = true;
-	try {
-		if(AprovacaoContext.CC_Cod==&apos;&apos; || isNaN(parseInt(AprovacaoContext.CC_Cod))) {
-			var xCCusto = AprovacaoContext.CC;
-			xCCusto = hAPI.getCardValue(&apos;centroCusto&apos;).substring(0,xCCusto.indexOf(&apos;-&apos;) -1).trim();
-			AprovacaoContext.CC_Cod = xCCusto;
-		}
-
-		if (AprovacaoContext.CC.indexOf(&quot;,&quot;) != -1)
-			AprovacaoContext.CC = AprovacaoContext.CC.split(&quot;,&quot;);
-		else {
-			if(AprovacaoContext.CC.indexOf(&quot;-&quot;) &lt;0) AprovacaoContext.CC=AprovacaoContext.CC_Cod+&apos; - &apos;+AprovacaoContext.CC; // SE SEM O CODIGO NO CENTRO DE CUSTO CARREGAR CONF CC_Cod
-
-			// 11050201 - LINHA DE CUIDADOS
-			AprovacaoContext.CC = [AprovacaoContext.CC]; 
-		}
-	} catch (e) {
-		AprovacaoContext.lerCCUSTOS = false;
-	}
-
-	// SE VALOR SOLICITADO VIER ENTRE PARENTESIS (VALOR NEGATIVO) REMOVER OS PARENTESIS
-	if(AprovacaoContext.valorSolicitado.indexOf(&apos;(&apos;) &gt;= 0 &amp;&amp; AprovacaoContext.valorSolicitado.indexOf(&apos;)&apos;) &gt;= 0){
-		AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado.replace(&apos;(&apos;, &apos;&apos;).replace(&apos;)&apos;, &apos;&apos;);
-		// if(AprovacaoContext.valorSolicitado &lt;0)
-		//	AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * -1; // CONVERTER PARA NEGATIVO
-	} 
-
-	// TRANSFORMAR VALOR CARTA EXCECAO - R$ 33.000,00
-	AprovacaoContext.valorCartaExcecao = parseValorMonetario(AprovacaoContext.valorCartaExcecao);
-
-	// SEGURANCA CARTA DE EXCECAO
-	AprovacaoContext.cartaExcecao = isTrue(AprovacaoContext.cartaExcecao) ? &apos;Sim&apos; : &apos;Não&apos;;
-	hAPI.setCardValue(&quot;cartaExcecao&quot;, AprovacaoContext.cartaExcecao);
-
-	// VALOR DA SOLICITACAO  
-	var valorCarta = hAPI.getCardValue(&quot;valorCartaExcecao&quot;);
-	if(valorCarta==&apos;&apos; || valorCarta==null)
-		valorCarta = AprovacaoContext.valorSolicitado;
-
-	// SE CARTA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA
-	if(AprovacaoContext.cartaExcecao == &apos;S&apos; || AprovacaoContext.cartaExcecao == &apos;on&apos; || AprovacaoContext.cartaExcecao == &quot;Sim&quot; || AprovacaoContext.cartaExcecao==&apos;sim&apos; )
-		AprovacaoContext.valorSolicitado = valorCarta;
-
-	// FORMATAR VALOR SOLICITADO
-	var moeda = getMoeda(AprovacaoContext.valorSolicitado);
-	AprovacaoContext.valorSolicitado = parseValorMonetario(AprovacaoContext.valorSolicitado);
-
-	if (isNaN(AprovacaoContext.valorSolicitado) || AprovacaoContext.valorSolicitado === 0)
-		throw &quot;### Valor solicitado invalido |&quot;+AprovacaoContext.valorSolicitado+&apos;|&apos;+hAPI.getCardValue( &quot;valorSolicitado&quot; )+&apos;|&apos;+hAPI.getCardValue( &quot;valorCartaExcecao&quot; );
-
-	// VERIFICA SE O VALOR ESTÁ EM MOEDA ESTRANGEIRA
-	if (moeda !== &quot;Real&quot;) {
-		var cotacao = valorPadrao(moeda);
-		AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * cotacao;
-		hAPI.setCardValue(&quot;cotacaoMOEDA&quot;, &apos;&apos;+cotacao);
-	} else {
-		hAPI.setCardValue(&quot;cotacaoMOEDA&quot;, &apos;1.00&apos;);
-	}
-
-	// CAMPOS OBRIGATORIOS
-	var xmsg=[];
-
-	// VALOR PADRAO PARA CARTA DE EXCECAO
-	if(AprovacaoContext.cartaExcecao == null || AprovacaoContext.cartaExcecao == &quot;&quot;)
-		AprovacaoContext.cartaExcecao = &quot;N&quot;;
-
-    // 
-	AprovacaoContext.xSequencia = 0;
-	AprovacaoContext.usuarios   = [];
-	AprovacaoContext.origem     = hAPI.getCardValue(&quot;numChamadoOrigem&quot;);
-	var atual  = hAPI.getCardValue(&quot;numChamado&quot;);
-	
-	// O PRIMEIRO APROVADOR FAZ TRATAMENTO PARA ADIANTAMENTO CONF REGRAS DE REEMBOLSO
-	// ATUALMENTE A CONSULTA AO SUPERIOR IMEDIATO ESTA SENDO FEITA ATRAVES DO DATASET DA SENIOR PELO NOME DO PRIMEIRO APROVADOR
-	var primeiroAPROVADOR = &apos;&apos;;
-
-	// VERIFICAR SE EXISTE OUTROS SUBPROCESSOS DE APROVACAO PARA O PROCESSO PAI E NAO CONSIDERAR AS APROVACOES JA INSERIDAS E QUE O STATUS SEJA IGUAL A &quot;Aprovado&quot;
-	// EXCETO MEDICAO e REEMBOLSO/ADIANTAMENTO QUE DEVEM APROVAR NOVAMENTE
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS &quot;+AprovacaoContext.operacao);
-	if(AprovacaoContext.operacao !=&apos;Solicitação de Medição de Contrato&apos; &amp;&amp; 
-	   AprovacaoContext.operacao !=&apos;Solicitação de Reembolso ou Adiantamento&apos;){
-		var params = new Array();
-		params.push( DatasetFactory.createConstraint(&quot;processoPai&quot;,AprovacaoContext.origem,atual,ConstraintType.MUST) );
-		var dsExecutados      = buscarDataset(&quot;DS_ALCADAS_EXECUTADAS&quot;, params);
-		if(dsExecutados.rowsCount &gt; 0)
-			for (var i1 = 0; i1 &lt; dsExecutados.rowsCount; i1++) {
-				AprovacaoContext.colleague  = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvLogin&quot; );
-				var status = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvStatus&quot;);
-				
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-colleague &quot;+AprovacaoContext.colleague);
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-usuarios. &quot;+AprovacaoContext.usuarios );
-				
-				if(status==&apos;Aprovado&apos; &amp;&amp; AprovacaoContext.colleague !=null ){
-					AprovacaoContext.usuarios.push(AprovacaoContext.colleague);
-				}
-			}
-		
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS usuarios&quot;);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-usuarios. &quot;+AprovacaoContext.usuarios );
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao : &quot;+AprovacaoContext.operacao);
-	}
-
-	// SE OPERACAO = Solicitação de Reembolso ou Adiantamento
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao : &quot;+AprovacaoContext.operacao);
-	if(AprovacaoContext.operacao==&apos;Solicitação de Reembolso ou Adiantamento&apos;) {
-		alcadasReembolso();
-	} else {
-		alcadasPadrao();
-	}
-
-	// APROVADORES NAO LOCALIZADOS
-	if(AprovacaoContext.usuarios.length&lt;=0){
-		throw &apos;### Atenção: Não consigo localizar os aprovadores conforme parametros. Favor acionar o suporte&apos;;
-	}
-
-	// FINALZADO
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - FINALIZADO&quot;);
-}
-
-// FUNCAO PARA ALCADAS PADRAO
-function alcadasPadrao(){
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasPadrao()&quot;);
-	// CONTROLE DE FILIAIS - EXCETO PARA OS CENTROS DE CUSTOS ABAIXO
-	AprovacaoContext.lerFILIAIS = true;
-	for (var i = 0; i &lt; AprovacaoContext.CC.length; i++) {
-		var centroCusto = AprovacaoContext.CC[i].toUpperCase();
-		if (centroCusto.indexOf(&quot;NOVOS NEGÓCIOS&quot;             ) != -1 || centroCusto.indexOf(&quot;NOVOS NEGÓCIOS JURÍDICO&quot; ) != -1 || 
-			centroCusto.indexOf(&quot;NOVOS NEGOCIOS&quot;             ) != -1 || centroCusto.indexOf(&quot;NOVOS NEGOCIOS JURIDICO&quot; ) != -1 ||
-			centroCusto.indexOf(&quot;TRIBUTARIO&quot;                 ) != -1 || 
-			centroCusto.indexOf(&quot;RECEBIMENTO FISCAL&quot;         ) != -1 ||
-			centroCusto.indexOf(&quot;ADMINISTRACAO DE PESSOAL&quot;   ) != -1 || 
-			centroCusto.indexOf(&quot;DISPENSACAO DE MEDICAMENTOS&quot;) != -1 || 
-			centroCusto.indexOf(&quot;FOLHA DE PAGAMENTO&quot;         ) != -1  
-		){
-			AprovacaoContext.lerFILIAIS = false;
-			break;
-		}
-	}
-	// CONTROLE DE FILIAIS - dataset EXCECAO
-	var params = new Array();
-		params.push( DatasetFactory.createConstraint(&quot;CC&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );
-	var dsCC = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS_EXCECAO&quot;, params);
-	if(dsCC.rowsCount &gt; 0)
-		AprovacaoContext.lerFILIAIS = false;
-
-	// VERIFICA SE APROVACAO POR CLASSE DE VALOR FOI INFORMADA COM O CAMPO CLASSE DE VALOR
-	if(AprovacaoContext.codCV!=null &amp;&amp; AprovacaoContext.codCV!=&apos;&apos;){
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - codCV: &quot;+AprovacaoContext.codCV);
-		AprovacaoContext.verCV	    = true;
-		AprovacaoContext.lerCV	    = true;
-		AprovacaoContext.lerCCUSTOS = false; // NAO LER CENTRO DE CUSTOS
-		AprovacaoContext.lerFILIAIS = false; // NAO LER FILIAIS
-		AprovacaoContext.lerPA	    = false; // NAO LER PAGAMENTO ANTECIPADO
-		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
-	} else {
-		AprovacaoContext.verCV      = false;
-		AprovacaoContext.lerCV      = false;
-		AprovacaoContext.lerCCUSTOS = true;
-		AprovacaoContext.lerPA      = false; // NAO LER PAGAMENTO ANTECIPADO
-		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
-	}
-
-	// VERIFICA SE APROVACAO FOR OPERACACAO PA - PAGAMENTO ANTECIPADO
-	if(AprovacaoContext.operacao.toLowerCase()==&apos;pa&apos; || 
-	   AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos; ||
-	   AprovacaoContext.operacao.toLowerCase()==&apos;pagamentos estrangeiros&apos;){
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao: &quot;+AprovacaoContext.operacao);
-		AprovacaoContext.lerCV      = false;
-		AprovacaoContext.lerFILIAIS = false;
-		AprovacaoContext.lerCCUSTOS = false;
-		AprovacaoContext.lerPA      = true;
-		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA
-		if( isPA_VRVA()){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);
-			AprovacaoContext.lerPA      = false;
-			AprovacaoContext.lerPA_VRVA = true;
-		} else {
-			// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE execeto se for PA_VRVA
-			if(AprovacaoContext.codFilial != null &amp;&amp; AprovacaoContext.codFilial != &apos;&apos;){
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - codFilial: &quot;+AprovacaoContext.codFilial);
-				var params = new Array();
-					params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );
-				var dsFiliais = buscarDataset(&quot;ds_Filiais&quot;, params);
-				if(dsFiliais.rowsCount &gt; 0){
-					AprovacaoContext.usabilidade = dsFiliais.getValue(0, &quot;USABILIDADE&quot;) || &apos;&apos;;
-					if(AprovacaoContext.usabilidade==&apos;&apos;)
-						throw &apos;ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.&apos;;
-					else
-						log.info(&quot;### AprovacaoUnificada.serviceTask13 - usabilidade: &quot;+AprovacaoContext.usabilidade);
-				} else {
-					throw &quot;ou FALHA em buscar Filial: &quot;+AprovacaoContext.codFilial+&quot;. Favor abrir chamado no ISM.&quot;;
-				}
-			}
-		}
-
-	}
-
-	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA
-	if( isPA_VRVA() ){
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);
-		AprovacaoContext.lerCV      = false;
-		AprovacaoContext.lerFILIAIS = false;
-		AprovacaoContext.lerCCUSTOS = false;
-		AprovacaoContext.lerPA      = false;
-		AprovacaoContext.lerPA_VRVA = true;
-	}
-
-	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
-	for (var iGrupo = 0; iGrupo &lt;=4; iGrupo++) {
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA &quot;+iGrupo+&quot; - wf: &quot;+getValue(&quot;WKNumProces&quot;));
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCV: &quot;+AprovacaoContext.lerCV);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCCUSTOS: &quot;+AprovacaoContext.lerCCUSTOS);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerFILIAIS: &quot;+AprovacaoContext.lerFILIAIS);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA: &quot;+AprovacaoContext.lerPA);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA_VRVA: &quot;+AprovacaoContext.lerPA_VRVA);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA fim &quot;+iGrupo);
-		
-		var params = new Array();
-
-		// SE GRUPO 0 - CLASSE DE VALOR INFORMADA NAO TEM APROVACAO POR CENTRO DE CUSTO
-		if(iGrupo==0){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
-			// SE lerCV FOR FALSE NAO LER CLASSE DE VALOR
-			if(!AprovacaoContext.lerCV)
-				continue;
-			
-			if(AprovacaoContext.codCV!=&apos;&apos;){
-				AprovacaoContext.verCV      = true;
-				AprovacaoContext.lerCCUSTOS = false;
-				AprovacaoContext.lerFILIAIS = false;
-				params.push( DatasetFactory.createConstraint(&quot;CV&quot;,AprovacaoContext.codCV,AprovacaoContext.codCV,ConstraintType.MUST) );
-			}
-		} 
-		
-		else if(iGrupo==1){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
-			// SE lerCCUSTOS FOR FALSE NAO LER CENTRO DE CUSTOS
-			if(!AprovacaoContext.lerCCUSTOS)
-				continue;	
-
-			params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );
-
-			// FAZER A LEITURA DE CADA CENTRO DE CUSTO INFORMADO NO CAMPO CENTRO DE CUSTO CC
-			// for (var iCC = 0; iCC &lt; CC.length; iCC++) 
-			// params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,CC_Cod,CC_Cod,ConstraintType.MUST) );
-		 } 
-		
-		else if(iGrupo==2){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
-			// SE lerFILIAIS FOR FALSE NAO LER FILIAIS
-			if(!AprovacaoContext.lerFILIAIS)
-				continue;	
-
-			// GRUPO 2 - FILIAL
-			params.push( DatasetFactory.createConstraint(&quot;CDFILIAL&quot;,AprovacaoContext.codFilial ,AprovacaoContext.codFilial,ConstraintType.MUST) );
-
-		} 
-		
-		else if(iGrupo==3){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
-			// SE lerPA FOR FALSE NAO LER PAGAMENTO ANTECIPADO
-			if(!AprovacaoContext.lerPA)
-				continue;	
-
-			// GRUPO 3 - PA - PAGAMENTO ANTECIPADO
-			params.push( DatasetFactory.createConstraint(&quot;PA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );
-		}
-
-		else if(iGrupo==4){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);
-			// SE lerPA_VRVA FOR FALSE NAO LER PAGAMENTO ANTECIPADO VR/VA
-			if(!AprovacaoContext.lerPA_VRVA)
-				continue;	
-
-			// GRUPO 4 - PA_VRVA - PAGAMENTO ANTECIPADO VR/VA
-			params.push( DatasetFactory.createConstraint(&quot;PA_VRVA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );
-		}
-		
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: &quot;+iGrupo);
-		log.dir(params);
-		
-		// CARREGAR SOMENTE SE TEM PARAMETROS
-		if(params.length&lt;=0)
-			continue;
-
-		// CARREGAR ALCADAS UNIFICADAS		
-        AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); 
-        
-        // SE NAO RETORNAR VALOR VERIFICAR AINDA SE EXISTE ALCADA CONF FILIAL
-        // Adicionar verificação de rowsCount antes de acessar getValue(0, ...)
-        if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))
-                throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);
-        
-		// SE POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA A CLASSE FORCAR PARADA PQ APROVADOR PARA A CLASSE DE VALOR EH OBRIGATORIO
-		if(AprovacaoContext.verCV)
-			if(AprovacaoContext.dsAprovadores.rowsCount == 0)
-				throw &quot;### Aprovador para a classe de valor &quot;+AprovacaoContext.codCV+&quot; não encontrado. Favor acionar a Central de Atendimento e solicitar o cadastro do aprovador.&quot;;
-	
-		// CARREGAR OS APROVADORES
-		lerAPROVADORES(0);
-	}
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasPadrao()-Finalizado&quot;);
-}
-
-function lerAPROVADORES(qAPROVADORES){
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - lerAPROVADORES() &quot;+qAPROVADORES);
-	
-	// LIMITE DE APROVADORES CONF PARAMETRO qAPROVADORES
-	var limite = AprovacaoContext.dsAprovadores.rowsCount;
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - limite &quot;+limite);
-	
-	// GRAVAR APROVADORES NA TABELA targetAprovadores
-	var Compliance = false;
-	for (var iAPV= 0; iAPV &lt; limite; iAPV++) {
-
-		// SE APROVACAO SERA COM BASE NO MOVIMENTO COM OU SEM CARTA DE EXCECAO
-		var base=&apos;0&apos;;
-		if(AprovacaoContext.cartaExcecao == &quot;Sim&quot;) 
-			base = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;vlrComCarta&quot;).replace(&apos;&amp;&amp;nbsp;&apos;, &apos;&apos;); // COM CARTA DE EXCECAO
-		else
-			base = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;vlrSemCarta&quot;).replace(&apos;&amp;&amp;nbsp;&apos;, &apos;&apos;); // SEM CARTA DE EXCECAO
-
-		if(base==null || base==&apos;null&apos; || base==&apos;&apos;){
-			throw &quot;### Valor base para aprovação não encontrado a- &quot;+base;
-		}
-			
-		base = base.toString();
-		base = replaceAll( base,&apos;R$&apos;,&apos;&apos;  );
-		base = replaceAll( base,&quot;.&quot;, &quot;&quot;  );
-		base = replaceAll( base,&quot;,&quot;, &quot;.&quot; );
-		base = parseFloat(base);
-		if(isNaN(base) || base &lt; 0){
-			throw &quot;### Valor base do aprovador invalido b- &quot;+base;
-		}
-
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - iAPV &quot;           +iAPV);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - valorSolicitado &quot;+AprovacaoContext.valorSolicitado);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - base &quot;           +base);
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao &quot;       +AprovacaoContext.operacao);
-		
-		// VALOR SOLICITADO PODERA VIR NEGATIVO SE O REEMBOLSO CALCULAR VALOR A SER REESTITUIDO PARA A CIA
-		if(AprovacaoContext.valorSolicitado&lt;0)
-			AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * -1;
-
-		// SE VALOR SOLICITADO FOR MAIOR QUE O VALOR TETO DO APROVADOR
-		// SE OPERACAO = Solicitação de Reembolso ou Adiantamento - Forcar os 2 primeiros aprovadores da classe de valor independente do valor solicitado
-		if(AprovacaoContext.valorSolicitado &gt;= base || AprovacaoContext.operacao==&apos;Solicitação de Reembolso ou Adiantamento&apos; || Compliance) {
-
-			// se operacao = Pagamento Antecipado validar usabilidade
-			if(AprovacaoContext.operacao.toLowerCase()==&apos;pa&apos; || AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos;){
-				var usabilidadeAprovador = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;usabilidade&quot;) || &apos;&apos;;
-				
-				// Se usabilidade da filial estiver preenchida, verificar se consta na usabilidade do aprovador
-				if(AprovacaoContext.usabilidade &amp;&amp; AprovacaoContext.usabilidade.trim() !== &apos;&apos; &amp;&amp; usabilidadeAprovador.indexOf(AprovacaoContext.usabilidade) &lt; 0){
-					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Usabilidade do aprovador (&quot; + usabilidadeAprovador + &quot;) não confere com a usabilidade da filial (&quot; + AprovacaoContext.usabilidade + &quot;). Ignorar aprovador&quot;);
-					continue; // IGNORAR APROVADOR
-				}
-			}
-
-			// PEGAR USUARIO E COLLEAGUE DO APROVADOR
-			AprovacaoContext.colleague = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;apv_Usuario_Id&quot;);
-			if(AprovacaoContext.colleague==&apos;null&apos; || AprovacaoContext.colleague==&apos;&apos;) 
-				AprovacaoContext.colleague = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;matrGestor&quot;);
-
-			if(AprovacaoContext.colleague==null || AprovacaoContext.colleague==&apos;&apos;)
-				AprovacaoContext.colleague = &apos;integrador.fluig&apos;;
-
-			AprovacaoContext.usuario = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;apv_Usuario&quot;);
-			if(AprovacaoContext.usuario==&apos;null&apos; || AprovacaoContext.usuario==&apos;&apos;)
-				AprovacaoContext.usuario = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;gestor&quot;);
-
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleague &quot;+AprovacaoContext.colleague);
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario.. &quot;+AprovacaoContext.usuario  );
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuarios. &quot;+AprovacaoContext.usuarios );
-			if(AprovacaoContext.colleague==null) 
-				continue;
-
-			// VERIFICAR SE O USUARIO JA NAO FOI INSERIDO NA TABELA targetAprovadores
-			if(AprovacaoContext.usuarios.indexOf(AprovacaoContext.colleague) == -1){
-
-				// VERIFICAR Compliance E SE FOR TRUE / USUARIO APROVADOR x FORNECEDOR NAO PODE TER APROVACAO - SUBIR O NIVEL PARA O PROXIMO APROVADOR
-				Compliance = isExcecaoCompliance(AprovacaoContext.colleague,AprovacaoContext.nomeFornecedor);
-				if(Compliance)
-					continue; // APROVADOR NAO ATENDE OS CRITERIOS DE Compliance - BUSCAR NOVO APROVADOR
-
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario &quot;+AprovacaoContext.usuario+&quot; nao encontrado na lista de usuarios. Inserindo aprovador...&quot;);
-				AprovacaoContext.usuarios.push(AprovacaoContext.colleague);
-
-				// PEGAR LOGIN DO USUARIO CONFORME DATASET ALCADAS x COLLEAGUE
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - busca dados usuario &quot;+AprovacaoContext.usuario);
-				var paramColleague = new Array();
-					paramColleague.push( DatasetFactory.createConstraint(&apos;colleaguePK.companyId&apos;  ,1        ,1        ,ConstraintType.MUST) );
-					paramColleague.push( DatasetFactory.createConstraint(&apos;colleaguePK.colleagueId&apos;,AprovacaoContext.colleague,AprovacaoContext.colleague,ConstraintType.MUST) );
-				var dsColleague = buscarDataset(&quot;colleague&quot;, paramColleague);
-				if(dsColleague.rowsCount == 0)
-					throw &quot;### Cadastro não encontrado para o usuário &quot;+AprovacaoContext.usuario+&apos;/ de: &apos;+AprovacaoContext.usuarios;
-				else {
-					// SE TEM MAIS DE UM CADASTRO ATIVO PARA O USUARIO BLOQUEAR APROVACAO
-					if(dsColleague.rowsCount &gt; 1)
-						throw &quot;### Usuário &quot;+AprovacaoContext.usuario+&quot; possui mais de um cadastro ativo no fluig. Favor acionar o suporte&quot;;
-					else { 
-						// SE USUARIO ESTIVER BLOQUEADO
-						if(dsColleague.getValue(0,&quot;active&quot;) ==&apos;false&apos; || dsColleague.getValue(0,&quot;active&quot;) ==false )
-							throw &quot;### Usuário &quot;+AprovacaoContext.usuario+&quot; está Bloqueado no Fluig. Favor acionar o suporte&quot;;
-						else {
-							// PEGAR ID DO USUARIO
-							AprovacaoContext.colleague = dsColleague.getValue(0, &quot;colleaguePK.colleagueId&quot;);
-							if(AprovacaoContext.colleague == null || AprovacaoContext.colleague == &quot;&quot;)
-								throw &quot;### Colleague não encontrado para o usuário &quot;+AprovacaoContext.usuario+&apos;. Favor acionar o suporte&apos;;
-						}
-					}
-				}
-				
-				// SE O APROVADOR FOR TBM O nomeFornecedor ADICIONAR APROVADOR FINANCEIRO
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao: &quot;+AprovacaoContext.operacao);
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - nomeFornecedor: &quot;+AprovacaoContext.nomeFornecedor);
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario: &quot;+AprovacaoContext.usuario);
-				if(isMesmaPessoa(AprovacaoContext.usuario, AprovacaoContext.nomeFornecedor) ){
-					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Detectado que aprovador é o mesmo que nomeFornecedor: &quot; + AprovacaoContext.usuario );
-					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Detectado que aprovador é o mesmo que nomeFornecedor: &quot; + AprovacaoContext.nomeFornecedor);
-					// buscar usuario do papel financeiro apv_FinanceiroAlcadas
-					var qPAPEL = &apos;apv_FinanceiroAlcadas&apos;;
-					var paramRoleId = [];
-						paramRoleId.push( DatasetFactory.createConstraint(&quot;workflowColleagueRolePK.roleId&quot;,qPAPEL,qPAPEL,ConstraintType.MUST) );
-					var resultDS = DatasetFactory.getDataset(&quot;workflowColleagueRole&quot;,null,paramRoleId,null);
-					if(resultDS.rowsCount&gt;0){
-						for (var iResult=0; iResult&lt;resultDS.rowsCount; iResult++) {
-							var novoAPV = resultDS.getValue(iResult,&quot;workflowColleagueRolePK.colleagueId&quot;);
-
-							// buscar nome do usuario em colleague
-							var paramsColleague = [];
-								paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.companyId&quot;  ,1      ,1      ,ConstraintType.MUST) );
-								paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,novoAPV,novoAPV,ConstraintType.MUST) );
-							var resultColleague = DatasetFactory.getDataset(&quot;colleague&quot;,null,paramsColleague,null);
-							var nomeAPV = resultColleague.getValue(0,&quot;colleagueName&quot;);
-							
-							AprovacaoContext.usuarios.push(nomeAPV);
-							log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleagueName: &quot;+nomeAPV);
-
-							// TROCAR O APROVADOR SOLICITANTE PELO APROVADOR REGISTRADO EM apv_FinanceiroAlcadas
-							AprovacaoContext.colleague = novoAPV;
-						}
-					}
-				}
-
-				// CONTROLE DE USUARIO x USUARIOS APROVADORES
-				AprovacaoContext.usuarios.push(AprovacaoContext.usuario);
-
-				// INSERIR APROVADOR NA TABELA targetAprovadores
-				var newRow = new java.util.HashMap();
-					newRow.put(&quot;apvSequencia&quot;, &apos;&apos;+(AprovacaoContext.xSequencia+1)   );
-					newRow.put(&quot;apvLogin&quot;    , &apos;&apos;+AprovacaoContext.colleague        );
-					newRow.put(&quot;apvValorTeto&quot;, &apos;&apos;+base.toFixed(2)  );
-					newRow.put(&quot;apvStatus&quot;   , &quot;nao_confirmado&quot;    );
-	
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - targetAprovadores: &quot;+newRow);
-				try {
-					hAPI.addCardChild(&quot;targetAprovadores&quot;, newRow);
-					AprovacaoContext.xSequencia  +=1;
-					AprovacaoContext.aprovadores +=1; // SOMA DE TODOS OS APROVADORES ENCONTRADOS
-				} catch (e) {
-					throw &quot;### addCardChild - targetAprovadores falha. Favor abrir chamado no ISM.&quot;;
-				}
-
-				// REINICIAR Compliance
-				Compliance = false;
-
-				// QUANDO PROCESSO ORIGEM = jornadaFornecedorV360 PEGAR SOMENTE 2 APROVADORES
-				if(AprovacaoContext.operacao == &apos;jornadaFornecedorV360&apos;)
-					if(AprovacaoContext.aprovadores &gt;= 2)
-						break;
-
-				// MEDICAO DE CONTRATOS SOMENTE 1 APROVADOR
-				if(AprovacaoContext.operacao.toUpperCase()==&apos;SOLICITAÇÃO DE MEDIÇÃO DE CONTRATO&apos; ||
-				   AprovacaoContext.operacao.toUpperCase()==&apos;MEDIÇÃO DE CONTRATOS&apos;)
-					if(AprovacaoContext.aprovadores &gt;= 1)
-						break;
-
-				// SE OPERACAO = &apos;Cancelamento NFSe Tasy x OC Integra x Protheus&apos;
-				if(AprovacaoContext.operacao.toUpperCase()==&apos;Cancelamento NFSe Tasy x OC Integra x Protheus&apos;)
-					if(AprovacaoContext.aprovadores &gt;= 2)
-						break;
-				
-				// SE OPERACAO = &apos;Solicitação de Reembolso ou Adiantamento&apos;
-				if(AprovacaoContext.operacao.toUpperCase()==&apos;SOLICITAÇÃO DE REEMBOLSO OU ADIANTAMENTO&apos;)
-					if(AprovacaoContext.aprovadores &gt;= 2)
-						break;
-
-				// NUMERO MAXIMO DE APROVADORES CONF SOLICITADO EDGAR BUSINESS CONTROL
-				if(AprovacaoContext.aprovadores &gt;= 7)
-					break;
-			}
-		}
-	}
-
-	// NAO ENCONTROU USUARIO SUBSTITUTO PARA REGRA DE Compliance
-	if(Compliance){
-		var qPAPEL = &apos;apv_FinanceiroAlcadas&apos;;
-		var paramRoleId = [];
-			paramRoleId.push( DatasetFactory.createConstraint(&quot;workflowColleagueRolePK.roleId&quot;,qPAPEL,qPAPEL,ConstraintType.MUST) );
-		var resultDS = DatasetFactory.getDataset(&quot;workflowColleagueRole&quot;,null,paramRoleId,null);
-		if(resultDS.rowsCount&gt;0){
-			for (var iResult=0; iResult&lt;resultDS.rowsCount; iResult++) {
-				var novoAPV = resultDS.getValue(iResult,&quot;workflowColleagueRolePK.colleagueId&quot;);
-
-				// buscar nome do usuario em colleague
-				var paramsColleague = [];
-					paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.companyId&quot;  ,1      ,1      ,ConstraintType.MUST) );
-					paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,novoAPV,novoAPV,ConstraintType.MUST) );
-				var resultColleague = DatasetFactory.getDataset(&quot;colleague&quot;,null,paramsColleague,null);
-				var nomeAPV = resultColleague.getValue(0,&quot;colleagueName&quot;);
-				AprovacaoContext.usuarios.push(nomeAPV);
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleagueName: &quot;+nomeAPV);
-
-				// INSERIR APROVADOR NA TABELA targetAprovadores
-				var newRow = new java.util.HashMap();
-					newRow.put(&quot;apvSequencia&quot;, &apos;&apos;+(AprovacaoContext.xSequencia+1)   );
-					newRow.put(&quot;apvLogin&quot;    , &apos;&apos;+novoAPV);
-					newRow.put(&quot;apvValorTeto&quot;, &apos;&apos;+base.toFixed(2)  );
-					newRow.put(&quot;apvStatus&quot;   , &quot;nao_confirmado&quot;    );
-
-				try {
-					hAPI.addCardChild(&quot;targetAprovadores&quot;, newRow);
-					AprovacaoContext.xSequencia  +=1;
-					AprovacaoContext.aprovadores +=1; // SOMA DE TODOS OS APROVADORES ENCONTRADOS
-				} catch (e) {
-					throw &quot;### addCardChild - targetAprovadores falha aprovador financeiro. Favor abrir chamado no ISM.&quot;;
-				}
-			}
-		}
-	}
-
-	// VERIFICA SE CLASSE DE VALOR FOI INFORMADA
-	if(AprovacaoContext.codCV != null &amp;&amp; AprovacaoContext.codCV != &quot;&quot;)
-		// SE tipoSolicitacao NAO POSSUIR 2 APROVADORES PARA ADIANTAMENTO RETORNAR ERRO
-		if(AprovacaoContext.tipoSolicitacao == &apos;adiantamento&apos; &amp;&amp; AprovacaoContext.aprovadores &lt; 2)
-			throw &quot;### Atenção: Não foi possível localizar todos os aprovadores para o adiantamento. Necessário 2 aprovadores para a Classe de Valor. Favor acionar o suporte&quot;;
-
-	// FINALIZADA A LEITURA DO DATASET
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - lerAPROVADORES()-Finalizado&quot;);
-}
-
-// FUNCAO PARA TROCAR APROVADOR CONFORME EXCESSAO Compliance
-function isExcecaoCompliance(qUSER,qFORNECEDOR){
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance()&quot;);
-	var isExcecao = false;
-
-	var user        = (qUSER || &apos;&apos;).toUpperCase();
-	var fornecedor  = (qFORNECEDOR || &apos;&apos;).toUpperCase();
-	var listaExcecao = {
-						nome		:	&quot;Luiz Felippe Quites Teixeira&quot;,
-						idUser		:	&quot;8d3dbb700c46490fb96e8175604d6ff6&quot;,
-						razaoSocial	:	&quot;Azevedo Sette Advogados&quot;,
-						CNPJ		:	&quot;65.174.088/0001-03&quot;
-					};
-
-	for(var key in listaExcecao){
-		if((listaExcecao[key].idUser || &apos;&apos;).toUpperCase() == user &amp;&amp; (listaExcecao[key].razaoSocial || &apos;&apos;).toUpperCase() == fornecedor){
-			isExcecao = true;
-			break;
-		}
-	}
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance() - isExcecao: &quot;+isExcecao);
-	return isExcecao;
-}
-
-// FUNCAO PARA IDENTIFICAR PA_VRVA
-function isPA_VRVA(){
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA()&quot;);
-	var isVRVA = false;
-	
-  	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ: &quot;+AprovacaoContext.cnpjFornecedor);
-	
-	// LISTA DE CNPJS QUE UTILIZAM VR/VA NO PAGAMENTO ANTECIPADO 
-	var listaCNPJ = [ 	
-		{ nome: &apos;PLUXEE BENEFICIOS DO BRASIL&apos;,    cnpj: &apos;69034668000156&apos; },
-		{ nome: &apos;BENEFICIO FACIL SERVICOS LTDAE&apos;, cnpj: &apos;06353068000130&apos; }
-	];
-	
-	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO
-	if(	AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado vr_va&apos;   || 
-		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos;         || 
-		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado - vr/va&apos; || 
-		AprovacaoContext.operacao.toLowerCase()==&apos;pa_vrva&apos; 						){
-		// VERIFICAR SE CNPJ DO FORNECEDOR ESTA NA LISTA DE VR/VA
-		for(var i = 0; i &lt; listaCNPJ.length; i++){
-			if(listaCNPJ[i].cnpj == AprovacaoContext.cnpjFornecedor){
-				log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ encontrado na lista de VR/VA: &quot;+listaCNPJ[i].nome);
-				isVRVA = true;
-				break;
-			}
-		}
-	}
-	
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: &quot;+isVRVA);
-	return isVRVA;
-}
-
-// FUNCAO PARA ALCADAS DE REEMBOLSO E/OU ADIANTAMENTO
-function alcadasReembolso()	{
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso()&quot;);
-	
-	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) 
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: AR-Adiantamento/Reembolso&quot;);
-	var params = new Array();
-
-	if(AprovacaoContext.CV!=&apos;&apos;){
-		// CAPEX 
-		// 	SE REEMBOLSO
-		//    LIDER DO PROJETO - primeiro aprovador da classe de valor
-		// 	SE ADIANTAMENTO
-		//    LIDER DO PROJETO - primeiro aprovador da classe de valor
-		//    GESTOR IMEDIATO  - segundo aprovador da classe de valor
-		// CLASSE DE VALOR
-		params.push( DatasetFactory.createConstraint(&quot;CV&quot;,AprovacaoContext.codCV,AprovacaoContext.codCV,ConstraintType.MUST) );
-
-	} else {
-		// OPEX
-		// 	SE REEMBOLSO
-		// 	SE ADIANTAMENTO
-		// 		SEMPRE 2 APROVADORES POR CENTRO DE CUSTO
-		params.push( DatasetFactory.createConstraint(&quot;AR&quot;      ,&apos;SIM&apos; ,&apos;SIM&apos;,ConstraintType.MUST) );
-		params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );
-	}
-	AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); 
-	if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))
-		throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);
-	
-	// SE POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA A CLASSE FORCAR PARADA PQ APROVADOR PARA A CLASSE DE VALOR EH OBRIGATORIO
-	if(AprovacaoContext.codCV != null &amp;&amp; AprovacaoContext.codCV != &quot;&quot;){
-		if(AprovacaoContext.verCV &amp;&amp; AprovacaoContext.dsAprovadores.rowsCount == 0)
-			throw &quot;### Aprovador para a classe de valor &quot;+AprovacaoContext.codCV+&quot; não encontrado. Favor acionar a Controladoria para cadastro do aprovador&quot;;
-	} else {
-		// SE NAO POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA O CENTRO DE CUSTO FORCAR LEITURA POR FILIAL
-		if(AprovacaoContext.dsAprovadores.rowsCount == 0){
-			log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso() - CENTRO DE CUSTO NAO ENCONTRADO APROVADORES&quot;);
-			params = new Array();
-			params.push( DatasetFactory.createConstraint(&quot;AR&quot;      ,&apos;SIM&apos; ,&apos;SIM&apos;,ConstraintType.MUST) );
-			params.push( DatasetFactory.createConstraint(&quot;CDFILIAL&quot;,AprovacaoContext.codFilial ,AprovacaoContext.codFilial,ConstraintType.MUST) );
-			AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); 
-			if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))
-				throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);
-
-			if(AprovacaoContext.dsAprovadores.rowsCount == 0)
-				throw &quot;### Aprovador para a Centro de Custo ou FILIAL/AR &quot;+AprovacaoContext.codFilial+&quot; não encontrado. Favor acionar a Controladoria para cadastro do aprovador&quot;;
-		}
-	}
-
-	// CARREGAR OS APROVADORES
-	lerAPROVADORES(1);
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso()-Finalizado&quot;);
-}
-
-// FUNCAO PARA VERIFICAR SE DUAS PESSOAS SAO A MESMA COMPARANDO NOMES DE FORMA INTELIGENTE
-function isMesmaPessoa(nome1, nome2) {
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa()&quot;);
-	if (!nome1 || !nome2) return false;
-	
-	// Normalizar os nomes: converter para lowercase 
-	var n1 = nome1.toString().toLowerCase().trim();
-	var n2 = nome2.toString().toLowerCase().trim();
-	
-	// Se forem exatamente iguais após normalização
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - n1/n2: &quot;+n1+&apos;/&apos;+n2);
-	if (n1 == n2) return true;
-	
-	// Dividir os nomes em palavras (primeiro nome, sobrenomes)
-	var palavras1 = n1.split(&apos; &apos;);
-	var palavras2 = n2.split(&apos; &apos;);
-	
-	// Filtrar palavras vazias
-	var temp1 = [];
-	for (var k = 0; k &lt; palavras1.length; k++) {
-		if (palavras1[k].length &gt; 0) {
-			temp1.push(palavras1[k]);
-		}
-	}
-	palavras1 = temp1;
-	
-	var temp2 = [];
-	for (var l = 0; l &lt; palavras2.length; l++) {
-		if (palavras2[l].length &gt; 0) {
-			temp2.push(palavras2[l]);
-		}
-	}
-	palavras2 = temp2;
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - palavras1/palavras2: &quot;+palavras1+&apos;/&apos;+palavras2);
-	if (palavras1.length == 0 || palavras2.length == 0) return false;
-	
-	// Verificar se o primeiro nome é o mesmo
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - palavras1[0]/palavras2[0]: &quot;+palavras1[0]+&apos;/&apos;+palavras2[0]);
-	if (palavras1[0] !== palavras2[0]) return false;
-	
-	// Verificar se o último sobrenome é o mesmo (importante para identificação)
-	var ultimoSobrenome1 = palavras1[palavras1.length - 1];
-	var ultimoSobrenome2 = palavras2[palavras2.length - 1];
-	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - ultimoSobrenome1/ultimoSobrenome2: &quot;+ultimoSobrenome1+&apos;/&apos;+ultimoSobrenome2);
-	if (ultimoSobrenome1 !== ultimoSobrenome2) return false;
-	
-	// Se chegou até aqui, primeiro nome e último sobrenome são iguais
-	// Verificar se as palavras do nome menor estão contidas no nome maior
-	var nomeCompleto, nomeSimples;
-	if (palavras1.length &lt;= palavras2.length) {
-		nomeSimples = palavras1;
-		nomeCompleto = palavras2;
-	} else {
-		nomeSimples = palavras2;
-		nomeCompleto = palavras1;
-	}
-	
-	// Verificar se todas as palavras do nome simples estão no nome completo
-	for (var i = 0; i &lt; nomeSimples.length; i++) {
-		log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - nomeSimples[i]/nomeCompleto: &quot;+nomeSimples[i]+&apos;/&apos;+nomeCompleto);
-		var encontrou = false;
-		for (var j = 0; j &lt; nomeCompleto.length; j++) {
-			if (nomeSimples[i] === nomeCompleto[j]) {
-				encontrou = true;
-				break;
-			}
-		}
-		if (!encontrou) return false;
-	}
-	
-	return true;
-}
-
-// FUNCAO PARA SUBSTITUIR TODOS OS CARACTERES DE UMA STRING
-function replaceAll(str, de, para){
-    var pos = str.indexOf(de);
-    while (pos &gt; -1){
-		str = str.replace(de, para);
-		pos = str.indexOf(de);
-	}
-    return (str);
-}
-
-function obterCotacaoMoedasBancoCentral(moeda, dataCotacao, callback) {
-	// Formata a data para o formato MM-dd-yyyy 04-08-2025
-	var dataAtual = new Date();
-	var dia = ( dataAtual.getDate()       &lt; 10 ? &apos;0&apos; : &apos;&apos;) +  dataAtual.getDate();
-	var mes = ((dataAtual.getMonth() + 1) &lt; 10 ? &apos;0&apos; : &apos;&apos;) + (dataAtual.getMonth() + 1); // Janeiro é 0
-	var ano = dataAtual.getFullYear();
-	var dataFormatada = dataCotacao || &apos;&apos;+mes + &apos;-&apos; + dia + &apos;-&apos; + ano;
-	
-	// URL da API do Banco Central
-	//         
-	// DOLAR e SAR
-	// https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=&apos;08-04-2025&apos;&amp;$top=100&amp;$format=json&amp;$select=cotacaoCompra
-	//
-	// EURO
-	// https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda=&apos;EUR&apos;&amp;@dataInicial=&apos;04-22-2025&apos;&amp;@dataFinalCotacao=&apos;04-22-2025&apos;&amp;$top=1&amp;$format=json&amp;$select=cotacaoCompra
-	
-	// EUA e SAR
-	var url = &quot;https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=&apos;&quot; + dataFormatada + &quot;&apos;&amp;$top=100&amp;$format=json&amp;$select=cotacaoCompra&quot;;
-	if(moeda==&apos;EUR&apos;)
-		url = &quot;https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda=&apos;EUR&apos;&amp;@dataInicial=&apos;&quot; + dataFormatada + &quot;&apos;&amp;@dataFinalCotacao=&apos;&quot; + dataFormatada + &quot;&apos;&amp;$top=1&amp;$format=json&amp;$select=cotacaoCompra&quot;;
-	
-	log.info(&quot;### cotacao dolar/euro banco central - endPoint:&quot;);
-	log.dir(url);
-	
-    try {
-        // Faz a requisição HTTP usando HttpURLConnection
-        var URL = new java.net.URL(url);
-        var connection = URL.openConnection();
-        connection.setRequestMethod(&quot;GET&quot;);
-        connection.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);
-        connection.connect();
-
-        var responseCode = connection.getResponseCode();
-        if (responseCode === 200) {
-            var scanner = new java.util.Scanner(connection.getInputStream());
-            var response = &quot;&quot;;
-            while (scanner.hasNext()) {
-                response += scanner.nextLine();
-            }
-            scanner.close();
-
-            // Parseia a resposta JSON
-            var jsonResponse = JSON.parse(response);
-
-            // Verifica se há valores retornados
-            if (jsonResponse.value &amp;&amp; jsonResponse.value.length &gt; 0) {
-                callback(null, jsonResponse.value[0].cotacaoCompra); // Retorna a cotação de compra
-            } else {
-				// SE NAO ENCONTRAR VALOR LANCAR CONF VALORES FIXOS INFORMADOS PELA GESTAO DE BUSINESS CONTROL
-            	// MAIO.25 
-            	// usd = R$5,66 
-            	// JPY = R$0,04 
-            	// SAR = R$1,51 
-            	// EUR = R$6,42
-           		callback(null, valorPadrao(moeda));
-            }
-        } else {
-       		callback(null, valorPadrao(moeda));
-            // callback(&quot;### Falha ao acessar a API do Banco Central: &quot; + responseCode, null);
-        }
-    } catch (error) {
-   		callback(null, valorPadrao(moeda));
-        // callback(&quot;### Falha ao obter a cotação do dólar do Banco Central: &quot; + error+&apos; --- &apos;+url, null);
-    }
-}
-
-function valorPadrao(qMOEDA){
-	if(qMOEDA==&apos;USD&apos;)
-		return 5.66;
-	
-	else if(qMOEDA==&apos;JPY&apos;)
-		return 0.04;
-
-	else if(qMOEDA==&apos;SAR&apos;)
-		return 1.51;
-
-	else if(qMOEDA==&apos;EUR&apos;)
-		return 6.42;
-	
-	else if(qMOEDA==&apos;LIB&apos;)
-		return 7.24
-	
-	else return 1;
-}
-
-function parseValorMonetario(valor) {
-    if (valor === null || valor === &apos;&apos;) return 0; // Verificação mais robusta
-
-    var valorStr = String(valor); // Garante que estamos trabalhando com uma string
-
-    // Etapa 1: Remover símbolos de moeda e espaços
-    var simbolosMoeda = [&quot;R$&quot;, &quot;US$&quot;, &quot;€&quot;, &quot;﷼&quot;, &quot;£&quot;];
-    // Substituindo forEach por um loop for padrão
-    for (var i = 0; i &lt; simbolosMoeda.length; i++) {
-        var simbolo = simbolosMoeda[i];
-        // Usar split/join para simular replaceAll e evitar problemas com regex no Fluig/Rhino
-        // É importante que &apos;simbolo&apos; não contenha caracteres especiais de regex se fosse usar replace com regex.
-        // Com split/join, ele é tratado literalmente.
-        if (valorStr.indexOf(simbolo) !== -1) { // Otimização: só fazer split/join se o símbolo existir
-            valorStr = valorStr.split(simbolo).join(&quot;&quot;);
-        }
-    }
-
-    // Remover espaços. A regex original /s cobria todos os tipos de whitespace.
-    // split(&quot; &quot;).join(&quot;&quot;) só remove espaços literais (&apos; &apos;).
-    // Se outros caracteres de espaço em branco (como tabulações) precisarem ser removidos,
-    // esta parte pode precisar de ajustes adicionais (ex: valorStr = valorStr.split(&quot;\t&quot;).join(&quot;&quot;);)
-    valorStr = valorStr.split(&quot; &quot;).join(&quot;&quot;);
-
-    // Etapa 2: Remover pontos (usados como separadores de milhar)
-    valorStr = valorStr.split(&quot;.&quot;).join(&quot;&quot;);
-
-    // Etapa 3: Substituir vírgula (usada como separador decimal) por ponto
-    valorStr = valorStr.replace(&quot;,&quot;, &quot;.&quot;);
-
-    var resultado = parseFloat(valorStr);
-    
-    // Retorna 0 se o resultado não for um número (ex: se a string original era inválida)
-    return isNaN(resultado) ? 0 : resultado;
-}
-
-function isTrue(valor) {
-    if (valor === true) return true;
-    if (typeof valor === &apos;string&apos;) {
-        var v = valor.trim().toLowerCase();
-        return v === &apos;true&apos; || v === &apos;sim&apos; || v === &apos;s&apos; || v === &apos;on&apos;;
-    }
-    return false;
-}
-
-var MOEDAS = {
-    &apos;US$&apos;: &apos;USD&apos;,
-    &apos;€&apos;  : &apos;EUR&apos;,
-    &apos;﷼&apos;  : &apos;SAR&apos;,
-    &apos;R$&apos; : &apos;REAL&apos;,
-    &apos;£&apos;  : &apos;LIB&apos;
-};
-
-function getMoeda(valor) {
-    for (var simbolo in MOEDAS) {
-        if (valor.indexOf(simbolo) !== -1) return MOEDAS[simbolo];
-    }
-    return &apos;Real&apos;;
-}
-
-function buscarDataset(nome, constraints) {
-    var ds = DatasetFactory.getDataset(nome, null, constraints, null);
-    return ds;
-}
+      <eventDescription>// Objeto para encapsular contexto e evitar variáveis globais&#xd;
+var AprovacaoContext = {&#xd;
+	// Flags de controle&#xd;
+	lerFILIAIS: false,&#xd;
+	lerCCUSTOS: false,&#xd;
+	lerPA: false,&#xd;
+	lerCV: false,&#xd;
+	verCV: false,&#xd;
+	verFILIAIS: false,&#xd;
+	lerPA_VRVA: false,&#xd;
+	&#xd;
+	// Dados principais&#xd;
+	CC: &apos;&apos;,&#xd;
+	CC_Cod: &apos;&apos;,&#xd;
+	filial: &apos;&apos;,&#xd;
+	codFilial: &apos;&apos;,&#xd;
+	usabilidade: &apos;&apos;,&#xd;
+	cartaExcecao: &apos;&apos;,&#xd;
+	valorSolicitado: &apos;&apos;,&#xd;
+	valorCartaExcecao: &apos;&apos;,&#xd;
+	operacao: &apos;&apos;,&#xd;
+	CV: &apos;&apos;,&#xd;
+	codCV: &apos;&apos;,&#xd;
+	tipoSolicitacao: &apos;&apos;,&#xd;
+	aprovadores: 0,&#xd;
+	area: &apos;&apos;,&#xd;
+	nomeFornecedor : &apos;&apos;,&#xd;
+	cnpjFornecedor: &apos;&apos;,&#xd;
+	&#xd;
+	// Dados de processamento&#xd;
+	usuarios: [],&#xd;
+	nomesUsuarios: [], // Lista para controlar nomes de usuários já adicionados&#xd;
+	origem: &apos;&apos;,&#xd;
+	xSequencia: 0,&#xd;
+	colleague: &apos;&apos;,&#xd;
+	usuario: &apos;&apos;,&#xd;
+	dsAprovadores: null&#xd;
+};&#xd;
+&#xd;
+function servicetask13(attempt, message) {&#xd;
+	var numChamado = getValue(&quot;WKNumProces&quot;);&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - INICIADO wf: &quot;+numChamado);&#xd;
+&#xd;
+	// ALTERAR USUARIO DE ABERTURA DO FLUXO DE ACORDO COM A ABERTURA DO FLUXO DE ORIGEM NO DATASET workflowProcess&#xd;
+	var params = [];&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;workflowProcessPK.processInstanceId&quot;,numChamado,numChamado,ConstraintType.MUST) );&#xd;
+	var dsProcesso = buscarDataset(&quot;workflowProcess&quot;, params);&#xd;
+	var numChamadoOrigem = dsProcesso.getValue(0, &quot;sourceProcess&quot;);&#xd;
+&#xd;
+	var params = [];&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;workflowProcessPK.processInstanceId&quot;,numChamadoOrigem,numChamadoOrigem,ConstraintType.MUST) );&#xd;
+	var dsProcessoOrigem = buscarDataset(&quot;workflowProcess&quot;, params);&#xd;
+	if(dsProcessoOrigem.rowsCount &gt; 0){&#xd;
+		// DATA DE CRIACAO PROCESSO PAI e CHAMADO ORIGEM&#xd;
+		hAPI.setCardValue(&quot;numChamadoOrigem&quot; ,numChamadoOrigem );&#xd;
+		hAPI.setCardValue(&quot;dtAberturaChamado&quot;,dsProcessoOrigem.getValue(0, &quot;startDateProcess&quot;) );&#xd;
+&#xd;
+		// USUARIO DE CRIACAO&#xd;
+		var usuarioOrigem   = dsProcessoOrigem.getValue(0, &quot;requesterId&quot;);&#xd;
+		if(usuarioOrigem != null &amp;&amp; usuarioOrigem != &quot;&quot;){&#xd;
+			params = [];&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,usuarioOrigem,usuarioOrigem,ConstraintType.MUST) );&#xd;
+			var dsColleague = buscarDataset(&quot;colleague&quot;, params);&#xd;
+			if(dsColleague.rowsCount == 0) {&#xd;
+				throw &quot;### Cadastro não encontrado ou usuário bloqueado para &quot;+usuarioOrigem;   &#xd;
+			} else {&#xd;
+				hAPI.setCardValue(&quot;usrCriacao&quot;       ,usuarioOrigem );&#xd;
+				hAPI.setCardValue(&quot;nomeCriacao&quot;      ,dsColleague.getValue(0, &quot;colleagueName&quot;) );&#xd;
+			} &#xd;
+		}&#xd;
+	}&#xd;
+&#xd;
+	// PARAMETROS - usando contexto encapsulado&#xd;
+	AprovacaoContext.CC                = String(hAPI.getCardValue(&quot;centroCusto&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);	 &#xd;
+	AprovacaoContext.CC_Cod            = String(hAPI.getCardValue(&quot;cdCentroCusto&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.filial            = String(hAPI.getCardValue(&quot;filial&quot;				) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.codFilial         = String(hAPI.getCardValue(&quot;cdFilial&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.cartaExcecao      = String(hAPI.getCardValue(&quot;cartaExcecao&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.valorSolicitado   = String(hAPI.getCardValue(&quot;valorSolicitado&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.valorCartaExcecao = String(hAPI.getCardValue(&quot;valorCartaExcecao&quot;	) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.operacao          = String(hAPI.getCardValue(&quot;operacao&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;); &#xd;
+	AprovacaoContext.CV                = String(hAPI.getCardValue(&quot;classeValor&quot;			) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.codCV             = String(hAPI.getCardValue(&quot;cdClasseValor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.tipoSolicitacao   = String(hAPI.getCardValue(&quot;tipoSolicitacao&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.area              = String(hAPI.getCardValue(&quot;area&quot;				) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.aprovadores       = 0;&#xd;
+	AprovacaoContext.usabilidade       = &apos;&apos;; // usada somente para PA - pegar usabilidade da filial&#xd;
+	AprovacaoContext.nomeFornecedor    = String(hAPI.getCardValue(&quot;nomeFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;);&#xd;
+	AprovacaoContext.cnpjFornecedor    = String(hAPI.getCardValue(&quot;cnpjFornecedor&quot;		) || &apos;&apos;).replace(&apos;&amp;nbsp;&apos;,&apos;&apos;).replace(/[^\d]+/g,&apos;&apos;); // somente numeros&#xd;
+&#xd;
+	// SEGURANCA FILIAL&#xd;
+	if(AprovacaoContext.codFilial==&apos;&apos; || isNaN(parseInt(AprovacaoContext.codFilial))){&#xd;
+		// RECUPERAR CODIGO&#xd;
+		var xFilial = AprovacaoContext.filial.substring(0,AprovacaoContext.filial.indexOf(&apos;-&apos;) -1).trim();&#xd;
+		hAPI.setCardValue(&apos;cdFilial&apos;,xFilial);&#xd;
+		AprovacaoContext.codFilial=xFilial;&#xd;
+&#xd;
+	} else if(AprovacaoContext.filial==&apos;&apos; || AprovacaoContext.filial==null){&#xd;
+		// RECUPERAR FILTRO&#xd;
+		params = [];&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );&#xd;
+		var dsFilial = buscarDataset(&quot;ds_Filiais&quot;, params);&#xd;
+		if(dsFilial.rowsCount &gt;0) {&#xd;
+			AprovacaoContext.filial = dsFilial.getValue(0, &quot;FILTRO&quot;);&#xd;
+			hAPI.setCardValue(&apos;filial&apos;,AprovacaoContext.filial);&#xd;
+		}&#xd;
+	}&#xd;
+&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - PARAMETROS&quot;);&#xd;
+	log.dir(AprovacaoContext.nomeFornecedor);&#xd;
+	log.dir(AprovacaoContext.CC);&#xd;
+	log.dir(AprovacaoContext.CC_Cod);&#xd;
+	log.dir(AprovacaoContext.filial);&#xd;
+	log.dir(AprovacaoContext.codFilial);&#xd;
+	log.dir(AprovacaoContext.cartaExcecao);&#xd;
+	log.dir(AprovacaoContext.valorSolicitado);&#xd;
+	log.dir(AprovacaoContext.valorCartaExcecao);&#xd;
+	log.dir(AprovacaoContext.operacao);&#xd;
+	log.dir(AprovacaoContext.CV);&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - PARAMETROS fim&quot;);&#xd;
+&#xd;
+	// CLASSE DE VALOR&#xd;
+	if(AprovacaoContext.codCV== &apos;&apos;)&#xd;
+		if(AprovacaoContext.CV != null &amp;&amp; AprovacaoContext.CV != &quot;&quot;){&#xd;
+			AprovacaoContext.codCV = AprovacaoContext.CV.split(&apos; - &apos;)[0];&#xd;
+			if(AprovacaoContext.codCV == null || AprovacaoContext.codCV == &quot;&quot;)&#xd;
+				throw &quot;### Falha na leitura da classe de valor. Favor abrir chamado no ISM.&quot;;&#xd;
+		} &#xd;
+&#xd;
+	// SEGURANCA CODIGO CENTRO DE CUSTO 90010379 - DIRETORIA HOSPITALAR (OPERACOES)&#xd;
+	// CENTRO DE CUSTO PODE VIR UNICO OU COM VARIOS CENTROS DE CUSTOS SEPARADOS POR VIRGULA&#xd;
+	AprovacaoContext.lerCCUSTOS = true;&#xd;
+	try {&#xd;
+		if(AprovacaoContext.CC_Cod==&apos;&apos; || isNaN(parseInt(AprovacaoContext.CC_Cod))) {&#xd;
+			var xCCusto = AprovacaoContext.CC;&#xd;
+			xCCusto = hAPI.getCardValue(&apos;centroCusto&apos;).substring(0,xCCusto.indexOf(&apos;-&apos;) -1).trim();&#xd;
+			AprovacaoContext.CC_Cod = xCCusto;&#xd;
+		}&#xd;
+&#xd;
+		if (AprovacaoContext.CC.indexOf(&quot;,&quot;) != -1)&#xd;
+			AprovacaoContext.CC = AprovacaoContext.CC.split(&quot;,&quot;);&#xd;
+		else {&#xd;
+			if(AprovacaoContext.CC.indexOf(&quot;-&quot;) &lt;0) AprovacaoContext.CC=AprovacaoContext.CC_Cod+&apos; - &apos;+AprovacaoContext.CC; // SE SEM O CODIGO NO CENTRO DE CUSTO CARREGAR CONF CC_Cod&#xd;
+&#xd;
+			// 11050201 - LINHA DE CUIDADOS&#xd;
+			AprovacaoContext.CC = [AprovacaoContext.CC]; &#xd;
+		}&#xd;
+	} catch (e) {&#xd;
+		AprovacaoContext.lerCCUSTOS = false;&#xd;
+	}&#xd;
+&#xd;
+	// SE VALOR SOLICITADO VIER ENTRE PARENTESIS (VALOR NEGATIVO) REMOVER OS PARENTESIS&#xd;
+	if(AprovacaoContext.valorSolicitado.indexOf(&apos;(&apos;) &gt;= 0 &amp;&amp; AprovacaoContext.valorSolicitado.indexOf(&apos;)&apos;) &gt;= 0){&#xd;
+		AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado.replace(&apos;(&apos;, &apos;&apos;).replace(&apos;)&apos;, &apos;&apos;);&#xd;
+		// if(AprovacaoContext.valorSolicitado &lt;0)&#xd;
+		//	AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * -1; // CONVERTER PARA NEGATIVO&#xd;
+	} &#xd;
+&#xd;
+	// TRANSFORMAR VALOR CARTA EXCECAO - R$ 33.000,00&#xd;
+	AprovacaoContext.valorCartaExcecao = parseValorMonetario(AprovacaoContext.valorCartaExcecao);&#xd;
+&#xd;
+	// SEGURANCA CARTA DE EXCECAO&#xd;
+	AprovacaoContext.cartaExcecao = isTrue(AprovacaoContext.cartaExcecao) ? &apos;Sim&apos; : &apos;Não&apos;;&#xd;
+	hAPI.setCardValue(&quot;cartaExcecao&quot;, AprovacaoContext.cartaExcecao);&#xd;
+&#xd;
+	// VALOR DA SOLICITACAO  &#xd;
+	var valorCarta = hAPI.getCardValue(&quot;valorCartaExcecao&quot;);&#xd;
+	if(valorCarta==&apos;&apos; || valorCarta==null)&#xd;
+		valorCarta = AprovacaoContext.valorSolicitado;&#xd;
+&#xd;
+	// SE CARTA DE EXCESSAO TROCAR VALOR PELO VALOR DA CARTA&#xd;
+	if(AprovacaoContext.cartaExcecao == &apos;S&apos; || AprovacaoContext.cartaExcecao == &apos;on&apos; || AprovacaoContext.cartaExcecao == &quot;Sim&quot; || AprovacaoContext.cartaExcecao==&apos;sim&apos; )&#xd;
+		AprovacaoContext.valorSolicitado = valorCarta;&#xd;
+&#xd;
+	// FORMATAR VALOR SOLICITADO&#xd;
+	var moeda = getMoeda(AprovacaoContext.valorSolicitado);&#xd;
+	AprovacaoContext.valorSolicitado = parseValorMonetario(AprovacaoContext.valorSolicitado);&#xd;
+&#xd;
+	if (isNaN(AprovacaoContext.valorSolicitado) || AprovacaoContext.valorSolicitado === 0)&#xd;
+		throw &quot;### Valor solicitado invalido |&quot;+AprovacaoContext.valorSolicitado+&apos;|&apos;+hAPI.getCardValue( &quot;valorSolicitado&quot; )+&apos;|&apos;+hAPI.getCardValue( &quot;valorCartaExcecao&quot; );&#xd;
+&#xd;
+	// VERIFICA SE O VALOR ESTÁ EM MOEDA ESTRANGEIRA&#xd;
+	if (moeda !== &quot;Real&quot;) {&#xd;
+		var cotacao = valorPadrao(moeda);&#xd;
+		AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * cotacao;&#xd;
+		hAPI.setCardValue(&quot;cotacaoMOEDA&quot;, &apos;&apos;+cotacao);&#xd;
+	} else {&#xd;
+		hAPI.setCardValue(&quot;cotacaoMOEDA&quot;, &apos;1.00&apos;);&#xd;
+	}&#xd;
+&#xd;
+	// CAMPOS OBRIGATORIOS&#xd;
+	var xmsg=[];&#xd;
+&#xd;
+	// VALOR PADRAO PARA CARTA DE EXCECAO&#xd;
+	if(AprovacaoContext.cartaExcecao == null || AprovacaoContext.cartaExcecao == &quot;&quot;)&#xd;
+		AprovacaoContext.cartaExcecao = &quot;N&quot;;&#xd;
+&#xd;
+    // &#xd;
+	AprovacaoContext.xSequencia = 0;&#xd;
+	AprovacaoContext.usuarios   = [];&#xd;
+	AprovacaoContext.origem     = hAPI.getCardValue(&quot;numChamadoOrigem&quot;);&#xd;
+	var atual  = hAPI.getCardValue(&quot;numChamado&quot;);&#xd;
+	&#xd;
+	// O PRIMEIRO APROVADOR FAZ TRATAMENTO PARA ADIANTAMENTO CONF REGRAS DE REEMBOLSO&#xd;
+	// ATUALMENTE A CONSULTA AO SUPERIOR IMEDIATO ESTA SENDO FEITA ATRAVES DO DATASET DA SENIOR PELO NOME DO PRIMEIRO APROVADOR&#xd;
+	var primeiroAPROVADOR = &apos;&apos;;&#xd;
+&#xd;
+	// VERIFICAR SE EXISTE OUTROS SUBPROCESSOS DE APROVACAO PARA O PROCESSO PAI E NAO CONSIDERAR AS APROVACOES JA INSERIDAS E QUE O STATUS SEJA IGUAL A &quot;Aprovado&quot;&#xd;
+	// EXCETO MEDICAO e REEMBOLSO/ADIANTAMENTO QUE DEVEM APROVAR NOVAMENTE&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS &quot;+AprovacaoContext.operacao);&#xd;
+	if(AprovacaoContext.operacao !=&apos;Solicitação de Medição de Contrato&apos; &amp;&amp; &#xd;
+	   AprovacaoContext.operacao !=&apos;Solicitação de Reembolso ou Adiantamento&apos;){&#xd;
+		var params = new Array();&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;processoPai&quot;,AprovacaoContext.origem,atual,ConstraintType.MUST) );&#xd;
+		var dsExecutados      = buscarDataset(&quot;DS_ALCADAS_EXECUTADAS&quot;, params);&#xd;
+		if(dsExecutados.rowsCount &gt; 0)&#xd;
+			for (var i1 = 0; i1 &lt; dsExecutados.rowsCount; i1++) {&#xd;
+				AprovacaoContext.colleague  = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvLogin&quot; );&#xd;
+				var status = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvStatus&quot;);&#xd;
+				&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-colleague &quot;+AprovacaoContext.colleague);&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-usuarios. &quot;+AprovacaoContext.usuarios );&#xd;
+				&#xd;
+				if(status==&apos;Aprovado&apos; &amp;&amp; AprovacaoContext.colleague !=null ){&#xd;
+					AprovacaoContext.usuarios.push(AprovacaoContext.colleague);&#xd;
+				}&#xd;
+			}&#xd;
+		&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS usuarios&quot;);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_EXECUTADAS-usuarios. &quot;+AprovacaoContext.usuarios );&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao : &quot;+AprovacaoContext.operacao);&#xd;
+	}&#xd;
+&#xd;
+	// SE OPERACAO = Solicitação de Reembolso ou Adiantamento&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao : &quot;+AprovacaoContext.operacao);&#xd;
+	if(AprovacaoContext.operacao==&apos;Solicitação de Reembolso ou Adiantamento&apos;) {&#xd;
+		alcadasReembolso();&#xd;
+	} else {&#xd;
+		alcadasPadrao();&#xd;
+	}&#xd;
+&#xd;
+	// APROVADORES NAO LOCALIZADOS&#xd;
+	if(AprovacaoContext.usuarios.length&lt;=0){&#xd;
+		throw &apos;### Atenção: Não consigo localizar os aprovadores conforme parametros. Favor acionar o suporte&apos;;&#xd;
+	}&#xd;
+&#xd;
+	// FINALZADO&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - FINALIZADO&quot;);&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA ALCADAS PADRAO&#xd;
+function alcadasPadrao(){&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasPadrao()&quot;);&#xd;
+	// CONTROLE DE FILIAIS - EXCETO PARA OS CENTROS DE CUSTOS ABAIXO&#xd;
+	AprovacaoContext.lerFILIAIS = true;&#xd;
+	for (var i = 0; i &lt; AprovacaoContext.CC.length; i++) {&#xd;
+		var centroCusto = AprovacaoContext.CC[i].toUpperCase();&#xd;
+		if (centroCusto.indexOf(&quot;NOVOS NEGÓCIOS&quot;             ) != -1 || centroCusto.indexOf(&quot;NOVOS NEGÓCIOS JURÍDICO&quot; ) != -1 || &#xd;
+			centroCusto.indexOf(&quot;NOVOS NEGOCIOS&quot;             ) != -1 || centroCusto.indexOf(&quot;NOVOS NEGOCIOS JURIDICO&quot; ) != -1 ||&#xd;
+			centroCusto.indexOf(&quot;TRIBUTARIO&quot;                 ) != -1 || &#xd;
+			centroCusto.indexOf(&quot;RECEBIMENTO FISCAL&quot;         ) != -1 ||&#xd;
+			centroCusto.indexOf(&quot;ADMINISTRACAO DE PESSOAL&quot;   ) != -1 || &#xd;
+			centroCusto.indexOf(&quot;DISPENSACAO DE MEDICAMENTOS&quot;) != -1 || &#xd;
+			centroCusto.indexOf(&quot;FOLHA DE PAGAMENTO&quot;         ) != -1  &#xd;
+		){&#xd;
+			AprovacaoContext.lerFILIAIS = false;&#xd;
+			break;&#xd;
+		}&#xd;
+	}&#xd;
+	// CONTROLE DE FILIAIS - dataset EXCECAO&#xd;
+	var params = new Array();&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;CC&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );&#xd;
+	var dsCC = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS_EXCECAO&quot;, params);&#xd;
+	if(dsCC.rowsCount &gt; 0)&#xd;
+		AprovacaoContext.lerFILIAIS = false;&#xd;
+&#xd;
+	// VERIFICA SE APROVACAO POR CLASSE DE VALOR FOI INFORMADA COM O CAMPO CLASSE DE VALOR&#xd;
+	if(AprovacaoContext.codCV!=null &amp;&amp; AprovacaoContext.codCV!=&apos;&apos;){&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - codCV: &quot;+AprovacaoContext.codCV);&#xd;
+		AprovacaoContext.verCV	    = true;&#xd;
+		AprovacaoContext.lerCV	    = true;&#xd;
+		AprovacaoContext.lerCCUSTOS = false; // NAO LER CENTRO DE CUSTOS&#xd;
+		AprovacaoContext.lerFILIAIS = false; // NAO LER FILIAIS&#xd;
+		AprovacaoContext.lerPA	    = false; // NAO LER PAGAMENTO ANTECIPADO&#xd;
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA&#xd;
+	} else {&#xd;
+		AprovacaoContext.verCV      = false;&#xd;
+		AprovacaoContext.lerCV      = false;&#xd;
+		AprovacaoContext.lerCCUSTOS = true;&#xd;
+		AprovacaoContext.lerPA      = false; // NAO LER PAGAMENTO ANTECIPADO&#xd;
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA&#xd;
+	}&#xd;
+&#xd;
+	// VERIFICA SE APROVACAO FOR OPERACACAO PA - PAGAMENTO ANTECIPADO&#xd;
+	if(AprovacaoContext.operacao.toLowerCase()==&apos;pa&apos; || &#xd;
+	   AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos; ||&#xd;
+	   AprovacaoContext.operacao.toLowerCase()==&apos;pagamentos estrangeiros&apos;){&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao: &quot;+AprovacaoContext.operacao);&#xd;
+		AprovacaoContext.lerCV      = false;&#xd;
+		AprovacaoContext.lerFILIAIS = false;&#xd;
+		AprovacaoContext.lerCCUSTOS = false;&#xd;
+		AprovacaoContext.lerPA      = true;&#xd;
+		AprovacaoContext.lerPA_VRVA = false; // NAO LER PAGAMENTO ANTECIPADO VR/VA&#xd;
+		if( isPA_VRVA()){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);&#xd;
+			AprovacaoContext.lerPA      = false;&#xd;
+			AprovacaoContext.lerPA_VRVA = true;&#xd;
+		} else {&#xd;
+			// SE FILIAL FOR INFORMADA CARREGAR USABILIDADE execeto se for PA_VRVA&#xd;
+			if(AprovacaoContext.codFilial != null &amp;&amp; AprovacaoContext.codFilial != &apos;&apos;){&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - codFilial: &quot;+AprovacaoContext.codFilial);&#xd;
+				var params = new Array();&#xd;
+					params.push( DatasetFactory.createConstraint(&quot;CODIGO&quot;,AprovacaoContext.codFilial,AprovacaoContext.codFilial,ConstraintType.MUST) );&#xd;
+				var dsFiliais = buscarDataset(&quot;ds_Filiais&quot;, params);&#xd;
+				if(dsFiliais.rowsCount &gt; 0){&#xd;
+					AprovacaoContext.usabilidade = dsFiliais.getValue(0, &quot;USABILIDADE&quot;) || &apos;&apos;;&#xd;
+					if(AprovacaoContext.usabilidade==&apos;&apos;)&#xd;
+						throw &apos;ou FALHA no Cadastro de Filiais porque o campo USABILIDADE não foi informado. Favor abrir chamado no ISM.&apos;;&#xd;
+					else&#xd;
+						log.info(&quot;### AprovacaoUnificada.serviceTask13 - usabilidade: &quot;+AprovacaoContext.usabilidade);&#xd;
+				} else {&#xd;
+					throw &quot;ou FALHA em buscar Filial: &quot;+AprovacaoContext.codFilial+&quot;. Favor abrir chamado no ISM.&quot;;&#xd;
+				}&#xd;
+			}&#xd;
+		}&#xd;
+&#xd;
+	}&#xd;
+&#xd;
+	// SE APROVACAO FOR PAGAMENTO ANTECIPADO VR/VA - TODOS OS APROVADORES SAO NIVEL 1 E FILTRAR SOMENTE PELO NIVEL PA_VRVA&#xd;
+	if( isPA_VRVA() ){&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao PA_VRVA: &quot;+AprovacaoContext.operacao);&#xd;
+		AprovacaoContext.lerCV      = false;&#xd;
+		AprovacaoContext.lerFILIAIS = false;&#xd;
+		AprovacaoContext.lerCCUSTOS = false;&#xd;
+		AprovacaoContext.lerPA      = false;&#xd;
+		AprovacaoContext.lerPA_VRVA = true;&#xd;
+	}&#xd;
+&#xd;
+	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) &#xd;
+	for (var iGrupo = 0; iGrupo &lt;=4; iGrupo++) {&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA &quot;+iGrupo+&quot; - wf: &quot;+getValue(&quot;WKNumProces&quot;));&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCV: &quot;+AprovacaoContext.lerCV);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerCCUSTOS: &quot;+AprovacaoContext.lerCCUSTOS);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerFILIAIS: &quot;+AprovacaoContext.lerFILIAIS);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA: &quot;+AprovacaoContext.lerPA);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - AprovacaoContext.lerPA_VRVA: &quot;+AprovacaoContext.lerPA_VRVA);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - LEITURA fim &quot;+iGrupo);&#xd;
+		&#xd;
+		var params = new Array();&#xd;
+&#xd;
+		// SE GRUPO 0 - CLASSE DE VALOR INFORMADA NAO TEM APROVACAO POR CENTRO DE CUSTO&#xd;
+		if(iGrupo==0){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);&#xd;
+			// SE lerCV FOR FALSE NAO LER CLASSE DE VALOR&#xd;
+			if(!AprovacaoContext.lerCV)&#xd;
+				continue;&#xd;
+			&#xd;
+			if(AprovacaoContext.codCV!=&apos;&apos;){&#xd;
+				AprovacaoContext.verCV      = true;&#xd;
+				AprovacaoContext.lerCCUSTOS = false;&#xd;
+				AprovacaoContext.lerFILIAIS = false;&#xd;
+				params.push( DatasetFactory.createConstraint(&quot;CV&quot;,AprovacaoContext.codCV,AprovacaoContext.codCV,ConstraintType.MUST) );&#xd;
+			}&#xd;
+		} &#xd;
+		&#xd;
+		else if(iGrupo==1){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);&#xd;
+			// SE lerCCUSTOS FOR FALSE NAO LER CENTRO DE CUSTOS&#xd;
+			if(!AprovacaoContext.lerCCUSTOS)&#xd;
+				continue;	&#xd;
+&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );&#xd;
+&#xd;
+			// FAZER A LEITURA DE CADA CENTRO DE CUSTO INFORMADO NO CAMPO CENTRO DE CUSTO CC&#xd;
+			// for (var iCC = 0; iCC &lt; CC.length; iCC++) &#xd;
+			// params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,CC_Cod,CC_Cod,ConstraintType.MUST) );&#xd;
+		 } &#xd;
+		&#xd;
+		else if(iGrupo==2){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);&#xd;
+			// SE lerFILIAIS FOR FALSE NAO LER FILIAIS&#xd;
+			if(!AprovacaoContext.lerFILIAIS)&#xd;
+				continue;	&#xd;
+&#xd;
+			// GRUPO 2 - FILIAL&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;CDFILIAL&quot;,AprovacaoContext.codFilial ,AprovacaoContext.codFilial,ConstraintType.MUST) );&#xd;
+&#xd;
+		} &#xd;
+		&#xd;
+		else if(iGrupo==3){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);&#xd;
+			// SE lerPA FOR FALSE NAO LER PAGAMENTO ANTECIPADO&#xd;
+			if(!AprovacaoContext.lerPA)&#xd;
+				continue;	&#xd;
+&#xd;
+			// GRUPO 3 - PA - PAGAMENTO ANTECIPADO&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;PA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );&#xd;
+		}&#xd;
+&#xd;
+		else if(iGrupo==4){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - iGrupo: &quot;+iGrupo);&#xd;
+			// SE lerPA_VRVA FOR FALSE NAO LER PAGAMENTO ANTECIPADO VR/VA&#xd;
+			if(!AprovacaoContext.lerPA_VRVA)&#xd;
+				continue;	&#xd;
+&#xd;
+			// GRUPO 4 - PA_VRVA - PAGAMENTO ANTECIPADO VR/VA&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;PA_VRVA&quot;,&apos;sim&apos;,&apos;sim&apos;,ConstraintType.MUST) );&#xd;
+		}&#xd;
+		&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: &quot;+iGrupo);&#xd;
+		log.dir(params);&#xd;
+		&#xd;
+		// CARREGAR SOMENTE SE TEM PARAMETROS&#xd;
+		if(params.length&lt;=0)&#xd;
+			continue;&#xd;
+&#xd;
+		// CARREGAR ALCADAS UNIFICADAS		&#xd;
+        AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); &#xd;
+        &#xd;
+        // SE NAO RETORNAR VALOR VERIFICAR AINDA SE EXISTE ALCADA CONF FILIAL&#xd;
+        // Adicionar verificação de rowsCount antes de acessar getValue(0, ...)&#xd;
+        if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))&#xd;
+                throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);&#xd;
+        &#xd;
+		// SE POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA A CLASSE FORCAR PARADA PQ APROVADOR PARA A CLASSE DE VALOR EH OBRIGATORIO&#xd;
+		if(AprovacaoContext.verCV)&#xd;
+			if(AprovacaoContext.dsAprovadores.rowsCount == 0)&#xd;
+				throw &quot;### Aprovador para a classe de valor &quot;+AprovacaoContext.codCV+&quot; não encontrado. Favor acionar a Central de Atendimento e solicitar o cadastro do aprovador.&quot;;&#xd;
+	&#xd;
+		// CARREGAR OS APROVADORES&#xd;
+		lerAPROVADORES(0);&#xd;
+	}&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasPadrao()-Finalizado&quot;);&#xd;
+}&#xd;
+&#xd;
+function lerAPROVADORES(qAPROVADORES){&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - lerAPROVADORES() &quot;+qAPROVADORES);&#xd;
+	&#xd;
+	// LIMITE DE APROVADORES CONF PARAMETRO qAPROVADORES&#xd;
+	var limite = AprovacaoContext.dsAprovadores.rowsCount;&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - limite &quot;+limite);&#xd;
+	&#xd;
+	// GRAVAR APROVADORES NA TABELA targetAprovadores&#xd;
+	var Compliance = false;&#xd;
+	for (var iAPV= 0; iAPV &lt; limite; iAPV++) {&#xd;
+&#xd;
+		// SE APROVACAO SERA COM BASE NO MOVIMENTO COM OU SEM CARTA DE EXCECAO&#xd;
+		var base=&apos;0&apos;;&#xd;
+		if(AprovacaoContext.cartaExcecao == &quot;Sim&quot;) &#xd;
+			base = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;vlrComCarta&quot;).replace(&apos;&amp;&amp;nbsp;&apos;, &apos;&apos;); // COM CARTA DE EXCECAO&#xd;
+		else&#xd;
+			base = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;vlrSemCarta&quot;).replace(&apos;&amp;&amp;nbsp;&apos;, &apos;&apos;); // SEM CARTA DE EXCECAO&#xd;
+&#xd;
+		if(base==null || base==&apos;null&apos; || base==&apos;&apos;){&#xd;
+			throw &quot;### Valor base para aprovação não encontrado a- &quot;+base;&#xd;
+		}&#xd;
+			&#xd;
+		base = base.toString();&#xd;
+		base = replaceAll( base,&apos;R$&apos;,&apos;&apos;  );&#xd;
+		base = replaceAll( base,&quot;.&quot;, &quot;&quot;  );&#xd;
+		base = replaceAll( base,&quot;,&quot;, &quot;.&quot; );&#xd;
+		base = parseFloat(base);&#xd;
+		if(isNaN(base) || base &lt; 0){&#xd;
+			throw &quot;### Valor base do aprovador invalido b- &quot;+base;&#xd;
+		}&#xd;
+&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - iAPV &quot;           +iAPV);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - valorSolicitado &quot;+AprovacaoContext.valorSolicitado);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - base &quot;           +base);&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao &quot;       +AprovacaoContext.operacao);&#xd;
+		&#xd;
+		// VALOR SOLICITADO PODERA VIR NEGATIVO SE O REEMBOLSO CALCULAR VALOR A SER REESTITUIDO PARA A CIA&#xd;
+		if(AprovacaoContext.valorSolicitado&lt;0)&#xd;
+			AprovacaoContext.valorSolicitado = AprovacaoContext.valorSolicitado * -1;&#xd;
+&#xd;
+		// SE VALOR SOLICITADO FOR MAIOR QUE O VALOR TETO DO APROVADOR&#xd;
+		// SE OPERACAO = Solicitação de Reembolso ou Adiantamento - Forcar os 2 primeiros aprovadores da classe de valor independente do valor solicitado&#xd;
+		if(AprovacaoContext.valorSolicitado &gt;= base || AprovacaoContext.operacao==&apos;Solicitação de Reembolso ou Adiantamento&apos; || Compliance) {&#xd;
+&#xd;
+			// se operacao = Pagamento Antecipado validar usabilidade&#xd;
+			if(AprovacaoContext.operacao.toLowerCase()==&apos;pa&apos; || AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos;){&#xd;
+				var usabilidadeAprovador = AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;usabilidade&quot;) || &apos;&apos;;&#xd;
+				&#xd;
+				// Se usabilidade da filial estiver preenchida, verificar se consta na usabilidade do aprovador&#xd;
+				if(AprovacaoContext.usabilidade &amp;&amp; AprovacaoContext.usabilidade.trim() !== &apos;&apos; &amp;&amp; usabilidadeAprovador.indexOf(AprovacaoContext.usabilidade) &lt; 0){&#xd;
+					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Usabilidade do aprovador (&quot; + usabilidadeAprovador + &quot;) não confere com a usabilidade da filial (&quot; + AprovacaoContext.usabilidade + &quot;). Ignorar aprovador&quot;);&#xd;
+					continue; // IGNORAR APROVADOR&#xd;
+				}&#xd;
+			}&#xd;
+&#xd;
+			// PEGAR USUARIO E COLLEAGUE DO APROVADOR&#xd;
+			AprovacaoContext.colleague = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;apv_Usuario_Id&quot;);&#xd;
+			if(AprovacaoContext.colleague==&apos;null&apos; || AprovacaoContext.colleague==&apos;&apos;) &#xd;
+				AprovacaoContext.colleague = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;matrGestor&quot;);&#xd;
+&#xd;
+			if(AprovacaoContext.colleague==null || AprovacaoContext.colleague==&apos;&apos;)&#xd;
+				AprovacaoContext.colleague = &apos;integrador.fluig&apos;;&#xd;
+&#xd;
+			AprovacaoContext.usuario = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;apv_Usuario&quot;);&#xd;
+			if(AprovacaoContext.usuario==&apos;null&apos; || AprovacaoContext.usuario==&apos;&apos;)&#xd;
+				AprovacaoContext.usuario = &apos;&apos;+AprovacaoContext.dsAprovadores.getValue(iAPV, &quot;gestor&quot;);&#xd;
+&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleague &quot;+AprovacaoContext.colleague);&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario.. &quot;+AprovacaoContext.usuario  );&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuarios. &quot;+AprovacaoContext.usuarios );&#xd;
+			if(AprovacaoContext.colleague==null) &#xd;
+				continue;&#xd;
+&#xd;
+			// VERIFICAR SE O USUARIO JA NAO FOI INSERIDO NA TABELA targetAprovadores&#xd;
+			if(AprovacaoContext.usuarios.indexOf(AprovacaoContext.colleague) == -1){&#xd;
+&#xd;
+				// VERIFICAR Compliance E SE FOR TRUE / USUARIO APROVADOR x FORNECEDOR NAO PODE TER APROVACAO - SUBIR O NIVEL PARA O PROXIMO APROVADOR&#xd;
+				Compliance = isExcecaoCompliance(AprovacaoContext.colleague,AprovacaoContext.nomeFornecedor);&#xd;
+				if(Compliance)&#xd;
+					continue; // APROVADOR NAO ATENDE OS CRITERIOS DE Compliance - BUSCAR NOVO APROVADOR&#xd;
+&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario &quot;+AprovacaoContext.usuario+&quot; nao encontrado na lista de usuarios. Inserindo aprovador...&quot;);&#xd;
+				AprovacaoContext.usuarios.push(AprovacaoContext.colleague);&#xd;
+&#xd;
+				// PEGAR LOGIN DO USUARIO CONFORME DATASET ALCADAS x COLLEAGUE&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - busca dados usuario &quot;+AprovacaoContext.usuario);&#xd;
+				var paramColleague = new Array();&#xd;
+					paramColleague.push( DatasetFactory.createConstraint(&apos;colleaguePK.companyId&apos;  ,1        ,1        ,ConstraintType.MUST) );&#xd;
+					paramColleague.push( DatasetFactory.createConstraint(&apos;colleaguePK.colleagueId&apos;,AprovacaoContext.colleague,AprovacaoContext.colleague,ConstraintType.MUST) );&#xd;
+				var dsColleague = buscarDataset(&quot;colleague&quot;, paramColleague);&#xd;
+				if(dsColleague.rowsCount == 0)&#xd;
+					throw &quot;### Cadastro não encontrado para o usuário &quot;+AprovacaoContext.usuario+&apos;/ de: &apos;+AprovacaoContext.usuarios;&#xd;
+				else {&#xd;
+					// SE TEM MAIS DE UM CADASTRO ATIVO PARA O USUARIO BLOQUEAR APROVACAO&#xd;
+					if(dsColleague.rowsCount &gt; 1)&#xd;
+						throw &quot;### Usuário &quot;+AprovacaoContext.usuario+&quot; possui mais de um cadastro ativo no fluig. Favor acionar o suporte&quot;;&#xd;
+					else { &#xd;
+						// SE USUARIO ESTIVER BLOQUEADO&#xd;
+						if(dsColleague.getValue(0,&quot;active&quot;) ==&apos;false&apos; || dsColleague.getValue(0,&quot;active&quot;) ==false )&#xd;
+							throw &quot;### Usuário &quot;+AprovacaoContext.usuario+&quot; está Bloqueado no Fluig. Favor acionar o suporte&quot;;&#xd;
+						else {&#xd;
+							// PEGAR ID DO USUARIO&#xd;
+							AprovacaoContext.colleague = dsColleague.getValue(0, &quot;colleaguePK.colleagueId&quot;);&#xd;
+							if(AprovacaoContext.colleague == null || AprovacaoContext.colleague == &quot;&quot;)&#xd;
+								throw &quot;### Colleague não encontrado para o usuário &quot;+AprovacaoContext.usuario+&apos;. Favor acionar o suporte&apos;;&#xd;
+						}&#xd;
+					}&#xd;
+				}&#xd;
+				&#xd;
+				// SE O APROVADOR FOR TBM O nomeFornecedor ADICIONAR APROVADOR FINANCEIRO&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - operacao: &quot;+AprovacaoContext.operacao);&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - nomeFornecedor: &quot;+AprovacaoContext.nomeFornecedor);&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - usuario: &quot;+AprovacaoContext.usuario);&#xd;
+				if(isMesmaPessoa(AprovacaoContext.usuario, AprovacaoContext.nomeFornecedor) ){&#xd;
+					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Detectado que aprovador é o mesmo que nomeFornecedor: &quot; + AprovacaoContext.usuario );&#xd;
+					log.info(&quot;### AprovacaoUnificada.serviceTask13 - Detectado que aprovador é o mesmo que nomeFornecedor: &quot; + AprovacaoContext.nomeFornecedor);&#xd;
+					// buscar usuario do papel financeiro apv_FinanceiroAlcadas&#xd;
+					var qPAPEL = &apos;apv_FinanceiroAlcadas&apos;;&#xd;
+					var paramRoleId = [];&#xd;
+						paramRoleId.push( DatasetFactory.createConstraint(&quot;workflowColleagueRolePK.roleId&quot;,qPAPEL,qPAPEL,ConstraintType.MUST) );&#xd;
+					var resultDS = DatasetFactory.getDataset(&quot;workflowColleagueRole&quot;,null,paramRoleId,null);&#xd;
+					if(resultDS.rowsCount&gt;0){&#xd;
+						for (var iResult=0; iResult&lt;resultDS.rowsCount; iResult++) {&#xd;
+							var novoAPV = resultDS.getValue(iResult,&quot;workflowColleagueRolePK.colleagueId&quot;);&#xd;
+&#xd;
+							// buscar nome do usuario em colleague&#xd;
+							var paramsColleague = [];&#xd;
+								paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.companyId&quot;  ,1      ,1      ,ConstraintType.MUST) );&#xd;
+								paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,novoAPV,novoAPV,ConstraintType.MUST) );&#xd;
+							var resultColleague = DatasetFactory.getDataset(&quot;colleague&quot;,null,paramsColleague,null);&#xd;
+							var nomeAPV = resultColleague.getValue(0,&quot;colleagueName&quot;);&#xd;
+							&#xd;
+							AprovacaoContext.usuarios.push(nomeAPV);&#xd;
+							log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleagueName: &quot;+nomeAPV);&#xd;
+&#xd;
+							// TROCAR O APROVADOR SOLICITANTE PELO APROVADOR REGISTRADO EM apv_FinanceiroAlcadas&#xd;
+							AprovacaoContext.colleague = novoAPV;&#xd;
+						}&#xd;
+					}&#xd;
+				}&#xd;
+&#xd;
+				// CONTROLE DE USUARIO x USUARIOS APROVADORES&#xd;
+				AprovacaoContext.usuarios.push(AprovacaoContext.usuario);&#xd;
+&#xd;
+				// INSERIR APROVADOR NA TABELA targetAprovadores&#xd;
+				var newRow = new java.util.HashMap();&#xd;
+					newRow.put(&quot;apvSequencia&quot;, &apos;&apos;+(AprovacaoContext.xSequencia+1)   );&#xd;
+					newRow.put(&quot;apvLogin&quot;    , &apos;&apos;+AprovacaoContext.colleague        );&#xd;
+					newRow.put(&quot;apvValorTeto&quot;, &apos;&apos;+base.toFixed(2)  );&#xd;
+					newRow.put(&quot;apvStatus&quot;   , &quot;nao_confirmado&quot;    );&#xd;
+	&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - targetAprovadores: &quot;+newRow);&#xd;
+				try {&#xd;
+					hAPI.addCardChild(&quot;targetAprovadores&quot;, newRow);&#xd;
+					AprovacaoContext.xSequencia  +=1;&#xd;
+					AprovacaoContext.aprovadores +=1; // SOMA DE TODOS OS APROVADORES ENCONTRADOS&#xd;
+				} catch (e) {&#xd;
+					throw &quot;### addCardChild - targetAprovadores falha. Favor abrir chamado no ISM.&quot;;&#xd;
+				}&#xd;
+&#xd;
+				// REINICIAR Compliance&#xd;
+				Compliance = false;&#xd;
+&#xd;
+				// QUANDO PROCESSO ORIGEM = jornadaFornecedorV360 PEGAR SOMENTE 2 APROVADORES&#xd;
+				if(AprovacaoContext.operacao == &apos;jornadaFornecedorV360&apos;)&#xd;
+					if(AprovacaoContext.aprovadores &gt;= 2)&#xd;
+						break;&#xd;
+&#xd;
+				// MEDICAO DE CONTRATOS SOMENTE 1 APROVADOR&#xd;
+				if(AprovacaoContext.operacao.toUpperCase()==&apos;SOLICITAÇÃO DE MEDIÇÃO DE CONTRATO&apos; ||&#xd;
+				   AprovacaoContext.operacao.toUpperCase()==&apos;MEDIÇÃO DE CONTRATOS&apos;)&#xd;
+					if(AprovacaoContext.aprovadores &gt;= 1)&#xd;
+						break;&#xd;
+&#xd;
+				// SE OPERACAO = &apos;Cancelamento NFSe Tasy x OC Integra x Protheus&apos;&#xd;
+				if(AprovacaoContext.operacao.toUpperCase()==&apos;Cancelamento NFSe Tasy x OC Integra x Protheus&apos;)&#xd;
+					if(AprovacaoContext.aprovadores &gt;= 2)&#xd;
+						break;&#xd;
+				&#xd;
+				// SE OPERACAO = &apos;Solicitação de Reembolso ou Adiantamento&apos;&#xd;
+				if(AprovacaoContext.operacao.toUpperCase()==&apos;SOLICITAÇÃO DE REEMBOLSO OU ADIANTAMENTO&apos;)&#xd;
+					if(AprovacaoContext.aprovadores &gt;= 2)&#xd;
+						break;&#xd;
+&#xd;
+				// NUMERO MAXIMO DE APROVADORES CONF SOLICITADO EDGAR BUSINESS CONTROL&#xd;
+				if(AprovacaoContext.aprovadores &gt;= 7)&#xd;
+					break;&#xd;
+			}&#xd;
+		}&#xd;
+	}&#xd;
+&#xd;
+	// NAO ENCONTROU USUARIO SUBSTITUTO PARA REGRA DE Compliance&#xd;
+	if(Compliance){&#xd;
+		var qPAPEL = &apos;apv_FinanceiroAlcadas&apos;;&#xd;
+		var paramRoleId = [];&#xd;
+			paramRoleId.push( DatasetFactory.createConstraint(&quot;workflowColleagueRolePK.roleId&quot;,qPAPEL,qPAPEL,ConstraintType.MUST) );&#xd;
+		var resultDS = DatasetFactory.getDataset(&quot;workflowColleagueRole&quot;,null,paramRoleId,null);&#xd;
+		if(resultDS.rowsCount&gt;0){&#xd;
+			for (var iResult=0; iResult&lt;resultDS.rowsCount; iResult++) {&#xd;
+				var novoAPV = resultDS.getValue(iResult,&quot;workflowColleagueRolePK.colleagueId&quot;);&#xd;
+&#xd;
+				// buscar nome do usuario em colleague&#xd;
+				var paramsColleague = [];&#xd;
+					paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.companyId&quot;  ,1      ,1      ,ConstraintType.MUST) );&#xd;
+					paramsColleague.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,novoAPV,novoAPV,ConstraintType.MUST) );&#xd;
+				var resultColleague = DatasetFactory.getDataset(&quot;colleague&quot;,null,paramsColleague,null);&#xd;
+				var nomeAPV = resultColleague.getValue(0,&quot;colleagueName&quot;);&#xd;
+				AprovacaoContext.usuarios.push(nomeAPV);&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - colleagueName: &quot;+nomeAPV);&#xd;
+&#xd;
+				// INSERIR APROVADOR NA TABELA targetAprovadores&#xd;
+				var newRow = new java.util.HashMap();&#xd;
+					newRow.put(&quot;apvSequencia&quot;, &apos;&apos;+(AprovacaoContext.xSequencia+1)   );&#xd;
+					newRow.put(&quot;apvLogin&quot;    , &apos;&apos;+novoAPV);&#xd;
+					newRow.put(&quot;apvValorTeto&quot;, &apos;&apos;+base.toFixed(2)  );&#xd;
+					newRow.put(&quot;apvStatus&quot;   , &quot;nao_confirmado&quot;    );&#xd;
+&#xd;
+				try {&#xd;
+					hAPI.addCardChild(&quot;targetAprovadores&quot;, newRow);&#xd;
+					AprovacaoContext.xSequencia  +=1;&#xd;
+					AprovacaoContext.aprovadores +=1; // SOMA DE TODOS OS APROVADORES ENCONTRADOS&#xd;
+				} catch (e) {&#xd;
+					throw &quot;### addCardChild - targetAprovadores falha aprovador financeiro. Favor abrir chamado no ISM.&quot;;&#xd;
+				}&#xd;
+			}&#xd;
+		}&#xd;
+	}&#xd;
+&#xd;
+	// VERIFICA SE CLASSE DE VALOR FOI INFORMADA&#xd;
+	if(AprovacaoContext.codCV != null &amp;&amp; AprovacaoContext.codCV != &quot;&quot;)&#xd;
+		// SE tipoSolicitacao NAO POSSUIR 2 APROVADORES PARA ADIANTAMENTO RETORNAR ERRO&#xd;
+		if(AprovacaoContext.tipoSolicitacao == &apos;adiantamento&apos; &amp;&amp; AprovacaoContext.aprovadores &lt; 2)&#xd;
+			throw &quot;### Atenção: Não foi possível localizar todos os aprovadores para o adiantamento. Necessário 2 aprovadores para a Classe de Valor. Favor acionar o suporte&quot;;&#xd;
+&#xd;
+	// FINALIZADA A LEITURA DO DATASET&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - lerAPROVADORES()-Finalizado&quot;);&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA TROCAR APROVADOR CONFORME EXCESSAO Compliance&#xd;
+function isExcecaoCompliance(qUSER,qFORNECEDOR){&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance()&quot;);&#xd;
+	var isExcecao = false;&#xd;
+&#xd;
+	var user        = (qUSER || &apos;&apos;).toUpperCase();&#xd;
+	var fornecedor  = (qFORNECEDOR || &apos;&apos;).toUpperCase();&#xd;
+	var listaExcecao = {&#xd;
+						nome		:	&quot;Luiz Felippe Quites Teixeira&quot;,&#xd;
+						idUser		:	&quot;8d3dbb700c46490fb96e8175604d6ff6&quot;,&#xd;
+						razaoSocial	:	&quot;Azevedo Sette Advogados&quot;,&#xd;
+						CNPJ		:	&quot;65.174.088/0001-03&quot;&#xd;
+					};&#xd;
+&#xd;
+	for(var key in listaExcecao){&#xd;
+		if((listaExcecao[key].idUser || &apos;&apos;).toUpperCase() == user &amp;&amp; (listaExcecao[key].razaoSocial || &apos;&apos;).toUpperCase() == fornecedor){&#xd;
+			isExcecao = true;&#xd;
+			break;&#xd;
+		}&#xd;
+	}&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isExcecaoCompliance() - isExcecao: &quot;+isExcecao);&#xd;
+	return isExcecao;&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA IDENTIFICAR PA_VRVA&#xd;
+function isPA_VRVA(){&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA()&quot;);&#xd;
+	var isVRVA = false;&#xd;
+	&#xd;
+  	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ: &quot;+AprovacaoContext.cnpjFornecedor);&#xd;
+	&#xd;
+	// LISTA DE CNPJS QUE UTILIZAM VR/VA NO PAGAMENTO ANTECIPADO &#xd;
+	var listaCNPJ = [ 	&#xd;
+		{ nome: &apos;PLUXEE BENEFICIOS DO BRASIL&apos;,    cnpj: &apos;69034668000156&apos; },&#xd;
+		{ nome: &apos;BENEFICIO FACIL SERVICOS LTDAE&apos;, cnpj: &apos;06353068000130&apos; }&#xd;
+	];&#xd;
+	&#xd;
+	// VERIFICAR SE OPERACAO = PA - PAGAMENTO ANTECIPADO&#xd;
+	if(	AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado vr_va&apos;   || &#xd;
+		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado&apos;         || &#xd;
+		AprovacaoContext.operacao.toLowerCase()==&apos;pagamento antecipado - vr/va&apos; || &#xd;
+		AprovacaoContext.operacao.toLowerCase()==&apos;pa_vrva&apos; 						){&#xd;
+		// VERIFICAR SE CNPJ DO FORNECEDOR ESTA NA LISTA DE VR/VA&#xd;
+		for(var i = 0; i &lt; listaCNPJ.length; i++){&#xd;
+			if(listaCNPJ[i].cnpj == AprovacaoContext.cnpjFornecedor){&#xd;
+				log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - CNPJ encontrado na lista de VR/VA: &quot;+listaCNPJ[i].nome);&#xd;
+				isVRVA = true;&#xd;
+				break;&#xd;
+			}&#xd;
+		}&#xd;
+	}&#xd;
+	&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isPA_VRVA() - isVRVA: &quot;+isVRVA);&#xd;
+	return isVRVA;&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA ALCADAS DE REEMBOLSO E/OU ADIANTAMENTO&#xd;
+function alcadasReembolso()	{&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso()&quot;);&#xd;
+	&#xd;
+	// LEITURA CONFORME ALCADAS DE APROVACAO UNIFICADAS x GRUPOS DE APROVACAO (CENTRO DE CUSTO E FILIAL) &#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - DS_ALCADAS_UNIFICADAS: AR-Adiantamento/Reembolso&quot;);&#xd;
+	var params = new Array();&#xd;
+&#xd;
+	if(AprovacaoContext.CV!=&apos;&apos;){&#xd;
+		// CAPEX &#xd;
+		// 	SE REEMBOLSO&#xd;
+		//    LIDER DO PROJETO - primeiro aprovador da classe de valor&#xd;
+		// 	SE ADIANTAMENTO&#xd;
+		//    LIDER DO PROJETO - primeiro aprovador da classe de valor&#xd;
+		//    GESTOR IMEDIATO  - segundo aprovador da classe de valor&#xd;
+		// CLASSE DE VALOR&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;CV&quot;,AprovacaoContext.codCV,AprovacaoContext.codCV,ConstraintType.MUST) );&#xd;
+&#xd;
+	} else {&#xd;
+		// OPEX&#xd;
+		// 	SE REEMBOLSO&#xd;
+		// 	SE ADIANTAMENTO&#xd;
+		// 		SEMPRE 2 APROVADORES POR CENTRO DE CUSTO&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;AR&quot;      ,&apos;SIM&apos; ,&apos;SIM&apos;,ConstraintType.MUST) );&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;CDCCUSTO&quot;,AprovacaoContext.CC_Cod,AprovacaoContext.CC_Cod,ConstraintType.MUST) );&#xd;
+	}&#xd;
+	AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); &#xd;
+	if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))&#xd;
+		throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);&#xd;
+	&#xd;
+	// SE POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA A CLASSE FORCAR PARADA PQ APROVADOR PARA A CLASSE DE VALOR EH OBRIGATORIO&#xd;
+	if(AprovacaoContext.codCV != null &amp;&amp; AprovacaoContext.codCV != &quot;&quot;){&#xd;
+		if(AprovacaoContext.verCV &amp;&amp; AprovacaoContext.dsAprovadores.rowsCount == 0)&#xd;
+			throw &quot;### Aprovador para a classe de valor &quot;+AprovacaoContext.codCV+&quot; não encontrado. Favor acionar a Controladoria para cadastro do aprovador&quot;;&#xd;
+	} else {&#xd;
+		// SE NAO POSSUIR CLASSE DE VALOR E NAO ENCONTRAR APROVADOR PARA O CENTRO DE CUSTO FORCAR LEITURA POR FILIAL&#xd;
+		if(AprovacaoContext.dsAprovadores.rowsCount == 0){&#xd;
+			log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso() - CENTRO DE CUSTO NAO ENCONTRADO APROVADORES&quot;);&#xd;
+			params = new Array();&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;AR&quot;      ,&apos;SIM&apos; ,&apos;SIM&apos;,ConstraintType.MUST) );&#xd;
+			params.push( DatasetFactory.createConstraint(&quot;CDFILIAL&quot;,AprovacaoContext.codFilial ,AprovacaoContext.codFilial,ConstraintType.MUST) );&#xd;
+			AprovacaoContext.dsAprovadores = buscarDataset(&quot;DS_ALCADAS_UNIFICADAS&quot;, params); &#xd;
+			if(AprovacaoContext.dsAprovadores.rowsCount &gt; 0 &amp;&amp; AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;))&#xd;
+				throw AprovacaoContext.dsAprovadores.getValue(0,&quot;ERROR&quot;);&#xd;
+&#xd;
+			if(AprovacaoContext.dsAprovadores.rowsCount == 0)&#xd;
+				throw &quot;### Aprovador para a Centro de Custo ou FILIAL/AR &quot;+AprovacaoContext.codFilial+&quot; não encontrado. Favor acionar a Controladoria para cadastro do aprovador&quot;;&#xd;
+		}&#xd;
+	}&#xd;
+&#xd;
+	// CARREGAR OS APROVADORES&#xd;
+	lerAPROVADORES(1);&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - alcadasReembolso()-Finalizado&quot;);&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA VERIFICAR SE DUAS PESSOAS SAO A MESMA COMPARANDO NOMES DE FORMA INTELIGENTE&#xd;
+function isMesmaPessoa(nome1, nome2) {&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa()&quot;);&#xd;
+	if (!nome1 || !nome2) return false;&#xd;
+	&#xd;
+	// Normalizar os nomes: converter para lowercase &#xd;
+	var n1 = nome1.toString().toLowerCase().trim();&#xd;
+	var n2 = nome2.toString().toLowerCase().trim();&#xd;
+	&#xd;
+	// Se forem exatamente iguais após normalização&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - n1/n2: &quot;+n1+&apos;/&apos;+n2);&#xd;
+	if (n1 == n2) return true;&#xd;
+	&#xd;
+	// Dividir os nomes em palavras (primeiro nome, sobrenomes)&#xd;
+	var palavras1 = n1.split(&apos; &apos;);&#xd;
+	var palavras2 = n2.split(&apos; &apos;);&#xd;
+	&#xd;
+	// Filtrar palavras vazias&#xd;
+	var temp1 = [];&#xd;
+	for (var k = 0; k &lt; palavras1.length; k++) {&#xd;
+		if (palavras1[k].length &gt; 0) {&#xd;
+			temp1.push(palavras1[k]);&#xd;
+		}&#xd;
+	}&#xd;
+	palavras1 = temp1;&#xd;
+	&#xd;
+	var temp2 = [];&#xd;
+	for (var l = 0; l &lt; palavras2.length; l++) {&#xd;
+		if (palavras2[l].length &gt; 0) {&#xd;
+			temp2.push(palavras2[l]);&#xd;
+		}&#xd;
+	}&#xd;
+	palavras2 = temp2;&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - palavras1/palavras2: &quot;+palavras1+&apos;/&apos;+palavras2);&#xd;
+	if (palavras1.length == 0 || palavras2.length == 0) return false;&#xd;
+	&#xd;
+	// Verificar se o primeiro nome é o mesmo&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - palavras1[0]/palavras2[0]: &quot;+palavras1[0]+&apos;/&apos;+palavras2[0]);&#xd;
+	if (palavras1[0] !== palavras2[0]) return false;&#xd;
+	&#xd;
+	// Verificar se o último sobrenome é o mesmo (importante para identificação)&#xd;
+	var ultimoSobrenome1 = palavras1[palavras1.length - 1];&#xd;
+	var ultimoSobrenome2 = palavras2[palavras2.length - 1];&#xd;
+	log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - ultimoSobrenome1/ultimoSobrenome2: &quot;+ultimoSobrenome1+&apos;/&apos;+ultimoSobrenome2);&#xd;
+	if (ultimoSobrenome1 !== ultimoSobrenome2) return false;&#xd;
+	&#xd;
+	// Se chegou até aqui, primeiro nome e último sobrenome são iguais&#xd;
+	// Verificar se as palavras do nome menor estão contidas no nome maior&#xd;
+	var nomeCompleto, nomeSimples;&#xd;
+	if (palavras1.length &lt;= palavras2.length) {&#xd;
+		nomeSimples = palavras1;&#xd;
+		nomeCompleto = palavras2;&#xd;
+	} else {&#xd;
+		nomeSimples = palavras2;&#xd;
+		nomeCompleto = palavras1;&#xd;
+	}&#xd;
+	&#xd;
+	// Verificar se todas as palavras do nome simples estão no nome completo&#xd;
+	for (var i = 0; i &lt; nomeSimples.length; i++) {&#xd;
+		log.info(&quot;### AprovacaoUnificada.serviceTask13 - isMesmaPessoa() - nomeSimples[i]/nomeCompleto: &quot;+nomeSimples[i]+&apos;/&apos;+nomeCompleto);&#xd;
+		var encontrou = false;&#xd;
+		for (var j = 0; j &lt; nomeCompleto.length; j++) {&#xd;
+			if (nomeSimples[i] === nomeCompleto[j]) {&#xd;
+				encontrou = true;&#xd;
+				break;&#xd;
+			}&#xd;
+		}&#xd;
+		if (!encontrou) return false;&#xd;
+	}&#xd;
+	&#xd;
+	return true;&#xd;
+}&#xd;
+&#xd;
+// FUNCAO PARA SUBSTITUIR TODOS OS CARACTERES DE UMA STRING&#xd;
+function replaceAll(str, de, para){&#xd;
+    var pos = str.indexOf(de);&#xd;
+    while (pos &gt; -1){&#xd;
+		str = str.replace(de, para);&#xd;
+		pos = str.indexOf(de);&#xd;
+	}&#xd;
+    return (str);&#xd;
+}&#xd;
+&#xd;
+function obterCotacaoMoedasBancoCentral(moeda, dataCotacao, callback) {&#xd;
+	// Formata a data para o formato MM-dd-yyyy 04-08-2025&#xd;
+	var dataAtual = new Date();&#xd;
+	var dia = ( dataAtual.getDate()       &lt; 10 ? &apos;0&apos; : &apos;&apos;) +  dataAtual.getDate();&#xd;
+	var mes = ((dataAtual.getMonth() + 1) &lt; 10 ? &apos;0&apos; : &apos;&apos;) + (dataAtual.getMonth() + 1); // Janeiro é 0&#xd;
+	var ano = dataAtual.getFullYear();&#xd;
+	var dataFormatada = dataCotacao || &apos;&apos;+mes + &apos;-&apos; + dia + &apos;-&apos; + ano;&#xd;
+	&#xd;
+	// URL da API do Banco Central&#xd;
+	//         &#xd;
+	// DOLAR e SAR&#xd;
+	// https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=&apos;08-04-2025&apos;&amp;$top=100&amp;$format=json&amp;$select=cotacaoCompra&#xd;
+	//&#xd;
+	// EURO&#xd;
+	// https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda=&apos;EUR&apos;&amp;@dataInicial=&apos;04-22-2025&apos;&amp;@dataFinalCotacao=&apos;04-22-2025&apos;&amp;$top=1&amp;$format=json&amp;$select=cotacaoCompra&#xd;
+	&#xd;
+	// EUA e SAR&#xd;
+	var url = &quot;https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=&apos;&quot; + dataFormatada + &quot;&apos;&amp;$top=100&amp;$format=json&amp;$select=cotacaoCompra&quot;;&#xd;
+	if(moeda==&apos;EUR&apos;)&#xd;
+		url = &quot;https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda=&apos;EUR&apos;&amp;@dataInicial=&apos;&quot; + dataFormatada + &quot;&apos;&amp;@dataFinalCotacao=&apos;&quot; + dataFormatada + &quot;&apos;&amp;$top=1&amp;$format=json&amp;$select=cotacaoCompra&quot;;&#xd;
+	&#xd;
+	log.info(&quot;### cotacao dolar/euro banco central - endPoint:&quot;);&#xd;
+	log.dir(url);&#xd;
+	&#xd;
+    try {&#xd;
+        // Faz a requisição HTTP usando HttpURLConnection&#xd;
+        var URL = new java.net.URL(url);&#xd;
+        var connection = URL.openConnection();&#xd;
+        connection.setRequestMethod(&quot;GET&quot;);&#xd;
+        connection.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);&#xd;
+        connection.connect();&#xd;
+&#xd;
+        var responseCode = connection.getResponseCode();&#xd;
+        if (responseCode === 200) {&#xd;
+            var scanner = new java.util.Scanner(connection.getInputStream());&#xd;
+            var response = &quot;&quot;;&#xd;
+            while (scanner.hasNext()) {&#xd;
+                response += scanner.nextLine();&#xd;
+            }&#xd;
+            scanner.close();&#xd;
+&#xd;
+            // Parseia a resposta JSON&#xd;
+            var jsonResponse = JSON.parse(response);&#xd;
+&#xd;
+            // Verifica se há valores retornados&#xd;
+            if (jsonResponse.value &amp;&amp; jsonResponse.value.length &gt; 0) {&#xd;
+                callback(null, jsonResponse.value[0].cotacaoCompra); // Retorna a cotação de compra&#xd;
+            } else {&#xd;
+				// SE NAO ENCONTRAR VALOR LANCAR CONF VALORES FIXOS INFORMADOS PELA GESTAO DE BUSINESS CONTROL&#xd;
+            	// MAIO.25 &#xd;
+            	// usd = R$5,66 &#xd;
+            	// JPY = R$0,04 &#xd;
+            	// SAR = R$1,51 &#xd;
+            	// EUR = R$6,42&#xd;
+           		callback(null, valorPadrao(moeda));&#xd;
+            }&#xd;
+        } else {&#xd;
+       		callback(null, valorPadrao(moeda));&#xd;
+            // callback(&quot;### Falha ao acessar a API do Banco Central: &quot; + responseCode, null);&#xd;
+        }&#xd;
+    } catch (error) {&#xd;
+   		callback(null, valorPadrao(moeda));&#xd;
+        // callback(&quot;### Falha ao obter a cotação do dólar do Banco Central: &quot; + error+&apos; --- &apos;+url, null);&#xd;
+    }&#xd;
+}&#xd;
+&#xd;
+function valorPadrao(qMOEDA){&#xd;
+	if(qMOEDA==&apos;USD&apos;)&#xd;
+		return 5.66;&#xd;
+	&#xd;
+	else if(qMOEDA==&apos;JPY&apos;)&#xd;
+		return 0.04;&#xd;
+&#xd;
+	else if(qMOEDA==&apos;SAR&apos;)&#xd;
+		return 1.51;&#xd;
+&#xd;
+	else if(qMOEDA==&apos;EUR&apos;)&#xd;
+		return 6.42;&#xd;
+	&#xd;
+	else if(qMOEDA==&apos;LIB&apos;)&#xd;
+		return 7.24&#xd;
+	&#xd;
+	else return 1;&#xd;
+}&#xd;
+&#xd;
+function parseValorMonetario(valor) {&#xd;
+    if (valor === null || valor === &apos;&apos;) return 0; // Verificação mais robusta&#xd;
+&#xd;
+    var valorStr = String(valor); // Garante que estamos trabalhando com uma string&#xd;
+&#xd;
+    // Etapa 1: Remover símbolos de moeda e espaços&#xd;
+    var simbolosMoeda = [&quot;R$&quot;, &quot;US$&quot;, &quot;€&quot;, &quot;﷼&quot;, &quot;£&quot;];&#xd;
+    // Substituindo forEach por um loop for padrão&#xd;
+    for (var i = 0; i &lt; simbolosMoeda.length; i++) {&#xd;
+        var simbolo = simbolosMoeda[i];&#xd;
+        // Usar split/join para simular replaceAll e evitar problemas com regex no Fluig/Rhino&#xd;
+        // É importante que &apos;simbolo&apos; não contenha caracteres especiais de regex se fosse usar replace com regex.&#xd;
+        // Com split/join, ele é tratado literalmente.&#xd;
+        if (valorStr.indexOf(simbolo) !== -1) { // Otimização: só fazer split/join se o símbolo existir&#xd;
+            valorStr = valorStr.split(simbolo).join(&quot;&quot;);&#xd;
+        }&#xd;
+    }&#xd;
+&#xd;
+    // Remover espaços. A regex original /s cobria todos os tipos de whitespace.&#xd;
+    // split(&quot; &quot;).join(&quot;&quot;) só remove espaços literais (&apos; &apos;).&#xd;
+    // Se outros caracteres de espaço em branco (como tabulações) precisarem ser removidos,&#xd;
+    // esta parte pode precisar de ajustes adicionais (ex: valorStr = valorStr.split(&quot;\t&quot;).join(&quot;&quot;);)&#xd;
+    valorStr = valorStr.split(&quot; &quot;).join(&quot;&quot;);&#xd;
+&#xd;
+    // Etapa 2: Remover pontos (usados como separadores de milhar)&#xd;
+    valorStr = valorStr.split(&quot;.&quot;).join(&quot;&quot;);&#xd;
+&#xd;
+    // Etapa 3: Substituir vírgula (usada como separador decimal) por ponto&#xd;
+    valorStr = valorStr.replace(&quot;,&quot;, &quot;.&quot;);&#xd;
+&#xd;
+    var resultado = parseFloat(valorStr);&#xd;
+    &#xd;
+    // Retorna 0 se o resultado não for um número (ex: se a string original era inválida)&#xd;
+    return isNaN(resultado) ? 0 : resultado;&#xd;
+}&#xd;
+&#xd;
+function isTrue(valor) {&#xd;
+    if (valor === true) return true;&#xd;
+    if (typeof valor === &apos;string&apos;) {&#xd;
+        var v = valor.trim().toLowerCase();&#xd;
+        return v === &apos;true&apos; || v === &apos;sim&apos; || v === &apos;s&apos; || v === &apos;on&apos;;&#xd;
+    }&#xd;
+    return false;&#xd;
+}&#xd;
+&#xd;
+var MOEDAS = {&#xd;
+    &apos;US$&apos;: &apos;USD&apos;,&#xd;
+    &apos;€&apos;  : &apos;EUR&apos;,&#xd;
+    &apos;﷼&apos;  : &apos;SAR&apos;,&#xd;
+    &apos;R$&apos; : &apos;REAL&apos;,&#xd;
+    &apos;£&apos;  : &apos;LIB&apos;&#xd;
+};&#xd;
+&#xd;
+function getMoeda(valor) {&#xd;
+    for (var simbolo in MOEDAS) {&#xd;
+        if (valor.indexOf(simbolo) !== -1) return MOEDAS[simbolo];&#xd;
+    }&#xd;
+    return &apos;Real&apos;;&#xd;
+}&#xd;
+&#xd;
+function buscarDataset(nome, constraints) {&#xd;
+    var ds = DatasetFactory.getDataset(nome, null, constraints, null);&#xd;
+    return ds;&#xd;
+}&#xd;
 </eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -1980,64 +1980,37 @@ function buscarDataset(nome, constraints) {
         <processId>wfAprovacaoUnificada</processId>
         <version>1</version>
       </workflowProcessEventPK>
-      <eventDescription>function servicetask35(attempt, message) {
-	// CONFIRMAR SE O BANCO DE DADOS LIBEROU O COMMIT DO FORM ANTES DE TESTAR A VALIDACAO
-	// FAZER 3 TENTATIVAS A CADA 2 MINUTOS
-	var numChamado = hAPI.getCardValue(&quot;numChamado&quot;);
-	var usuario    = getValue(&apos;WKUser&apos;); //matricula do usuário corrente
-
-	// Verifica se o usuário atual é o responsável pela aprovação
-	log.info(&quot;### AprovacaoUnificada.servicetask35 - numChamado: &quot;+numChamado);
-	log.info(&quot;### AprovacaoUnificada.servicetask35 - usuario: &quot;+usuario);
-
-	var params = new Array();
-		params.push( DatasetFactory.createConstraint(&quot;numChamado&quot;,numChamado,&apos;&apos;,ConstraintType.MUST) );
-	var dsExecutados = DatasetFactory.getDataset(&quot;DS_ALCADAS_EXECUTADAS&quot;,null,params,null);
-	log.info(&quot;### AprovacaoUnificada.servicetask35 - DS_ALCADAS_EXECUTADAS&quot;);
-	log.dir(dsExecutados);
-	
-	var achei=&apos;nao&apos;;
-	if(dsExecutados.rowsCount &gt; 0)
-		for (var i1 = 0; i1 &lt; dsExecutados.rowsCount; i1++) {
-			var status = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvStatus&quot;);
-			// gravar historico e motido da reprovação no workflow horiginal se o ultimo registro for Reprovado
-			if(status ==&apos;Reprovado&apos;){
-				var numChamadoOrigem = dsExecutados.getValue(i1,&quot;numChamadoOrigem&quot;);
-				var apvLogin	 = &apos;&apos;+dsExecutados.getValue(i1,&quot;apvLogin&quot;);
-
-				// BUSCAR NOME DO APROVADOR NO DATASET DE USUARIOS COLEEAGUE
-				var constUser = new Array();
-					constUser.push( DatasetFactory.createConstraint(&quot;colleaguePK.colleagueId&quot;,apvLogin,apvLogin,ConstraintType.MUST) );
-				var dsUser = DatasetFactory.getDataset(&quot;colleague&quot;,null,constUser,null);
-				var nomeAprovador = dsUser.getValue(0,&quot;colleagueName&quot;);
-				var comments = &apos;Atenção: &apos;+nomeAprovador+&quot; Reprovou esta solicitação - Motivo: &quot;+dsExecutados.getValue(i1,&quot;apvObs&quot;);
-
-				var users = new java.util.ArrayList();
-					users.add(usuario); // matrícula do usuário
-
-				// ENVIAR HISTORICO PARA O WORKFLOW ORIGEM ATRAVES DATASET DS_LANCAR_HISTORICO_WF2
-				var params = new Array();
-					params.push( DatasetFactory.createConstraint(&quot;PROCESS_INSTANCE_ID&quot;	,numChamadoOrigem	,&apos;&apos;,ConstraintType.MUST) );
-					params.push( DatasetFactory.createConstraint(&quot;USER_ID&quot;				,usuario			,&apos;&apos;,ConstraintType.MUST) );
-					params.push( DatasetFactory.createConstraint(&quot;COMMENTS&quot;				,comments			,&apos;&apos;,ConstraintType.MUST) );
-					params.push( DatasetFactory.createConstraint(&quot;THREAD_SEQUENCE&quot;		,&quot;0&quot;				,&apos;&apos;,ConstraintType.MUST) );
-				var dsLancarHistorico = DatasetFactory.getDataset(&quot;DS_LANCAR_HISTORICO_WF2&quot;,null,params,null);
-				log.info(&quot;### AprovacaoUnificada.servicetask35 - DS_LANCAR_HISTORICO_WF2&quot;);
-				log.dir(dsLancarHistorico);
-				break;
-			} else {
-				if(status ==&apos;nao_confirmado&apos;){
-					achei=&apos;sim&apos;;
-					break;
-				}
-			}
-		}
-	else 
-		achei=&apos;vazio&apos;;
-	
-	log.info(&quot;### AprovacaoUnificada.servicetask35 - achei: &quot;+achei);
-	return achei;
-}
+      <eventDescription>function servicetask35(attempt, message) {&#xd;
+	// CONFIRMAR SE O BANCO DE DADOS LIBEROU O COMMIT DO FORM ANTES DE TESTAR A VALIDACAO&#xd;
+	// FAZER 3 TENTATIVAS A CADA 2 MINUTOS&#xd;
+	var numChamado = hAPI.getCardValue(&quot;numChamado&quot;);&#xd;
+	var usuario    = getValue(&apos;WKUser&apos;); //matricula do usuário corrente&#xd;
+&#xd;
+	// Verifica se o usuário atual é o responsável pela aprovação&#xd;
+	log.info(&quot;### AprovacaoUnificada.servicetask36 - numChamado: &quot;+numChamado);&#xd;
+	log.info(&quot;### AprovacaoUnificada.servicetask36 - usuario: &quot;+usuario);&#xd;
+&#xd;
+	var params = new Array();&#xd;
+		params.push( DatasetFactory.createConstraint(&quot;numChamado&quot;,numChamado,&apos;&apos;,ConstraintType.MUST) );&#xd;
+	var dsExecutados = DatasetFactory.getDataset(&quot;DS_ALCADAS_EXECUTADAS&quot;,null,params,null);&#xd;
+	log.info(&quot;### AprovacaoUnificada.servicetask36 - DS_ALCADAS_EXECUTADAS&quot;);&#xd;
+	log.dir(dsExecutados);&#xd;
+	&#xd;
+	var achei=&apos;nao&apos;;&#xd;
+	if(dsExecutados.rowsCount &gt; 0)&#xd;
+		for (var i1 = 0; i1 &lt; dsExecutados.rowsCount; i1++) {&#xd;
+			var status = &apos;&apos;+dsExecutados.getValue(i1, &quot;apvStatus&quot;);&#xd;
+			if(status ==&apos;nao_confirmado&apos;){&#xd;
+				achei=&apos;sim&apos;;&#xd;
+				break;&#xd;
+			}&#xd;
+		}&#xd;
+	else &#xd;
+		achei=&apos;vazio&apos;;&#xd;
+	&#xd;
+	log.info(&quot;### AprovacaoUnificada.servicetask36 - achei: &quot;+achei);&#xd;
+	return achei;&#xd;
+}&#xd;
 </eventDescription>
     </WorkflowProcessEvent>
     <WorkflowProcessEvent>
@@ -2193,7 +2166,43 @@ function verificaSeCargaAprovadores(){&#xd;
         <version>1</version>
         <componGrafSequence>44</componGrafSequence>
       </processComponGrafPK>
-      <stateName>Revisada 10.11.25 PA VR e VA</stateName>
+      <stateName>Revisada 14.08.25 NFSe</stateName>
+    </ProcessComponGraf>
+    <ProcessComponGraf>
+      <componType>1</componType>
+      <positionX>1250</positionX>
+      <positionY>69</positionY>
+      <processComponGrafPK>
+        <companyId>1</companyId>
+        <processId>wfAprovacaoUnificada</processId>
+        <version>1</version>
+        <componGrafSequence>51</componGrafSequence>
+      </processComponGrafPK>
+      <stateName>Revisada 14.08.25 RA</stateName>
+    </ProcessComponGraf>
+    <ProcessComponGraf>
+      <componType>1</componType>
+      <positionX>1250</positionX>
+      <positionY>140</positionY>
+      <processComponGrafPK>
+        <companyId>1</companyId>
+        <processId>wfAprovacaoUnificada</processId>
+        <version>1</version>
+        <componGrafSequence>52</componGrafSequence>
+      </processComponGrafPK>
+      <stateName>Revisada 01.09.25 Aprovador x Solicitante</stateName>
+    </ProcessComponGraf>
+    <ProcessComponGraf>
+      <componType>1</componType>
+      <positionX>1250</positionX>
+      <positionY>240</positionY>
+      <processComponGrafPK>
+        <companyId>1</companyId>
+        <processId>wfAprovacaoUnificada</processId>
+        <version>1</version>
+        <componGrafSequence>53</componGrafSequence>
+      </processComponGrafPK>
+      <stateName>Revisada 06.09.25 Libra </stateName>
     </ProcessComponGraf>
   </list>
   <list/>
@@ -2202,7 +2211,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>9</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2213,7 +2222,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>9</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2224,7 +2233,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>23</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2235,7 +2244,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>29</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2246,7 +2255,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>30</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2257,7 +2266,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>31</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2268,7 +2277,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>34</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2279,7 +2288,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>34</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2290,7 +2299,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>41</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2301,7 +2310,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>41</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
@@ -2312,7 +2321,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>50</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
@@ -2323,7 +2332,7 @@ function verificaSeCargaAprovadores(){&#xd;
       <processLinkBendPK>
         <companyId>1</companyId>
         <processId>wfAprovacaoUnificada</processId>
-        <version>136</version>
+        <version>119</version>
         <linkSequence>50</linkSequence>
         <bendSequence>2</bendSequence>
       </processLinkBendPK>
