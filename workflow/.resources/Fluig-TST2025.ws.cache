@@ -4836,6 +4836,84 @@
       </void>
      </object>
     </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_pagDiversos</string>
+      </void>
+      <void property="documentDescription">
+       <string>Pagamentos Diversos</string>
+      </void>
+      <void property="documentId">
+       <int>8702221</int>
+      </void>
+     </object>
+    </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_pagDP</string>
+      </void>
+      <void property="documentDescription">
+       <string>Pagamentos DP</string>
+      </void>
+      <void property="documentId">
+       <int>8702222</int>
+      </void>
+     </object>
+    </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_pagFacilities</string>
+      </void>
+      <void property="documentDescription">
+       <string>Pagamentos Facilities</string>
+      </void>
+      <void property="documentId">
+       <int>8702223</int>
+      </void>
+     </object>
+    </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_pagImpostos</string>
+      </void>
+      <void property="documentDescription">
+       <string>Pagamentos Impostos</string>
+      </void>
+      <void property="documentId">
+       <int>8702224</int>
+      </void>
+     </object>
+    </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_pagJuridico</string>
+      </void>
+      <void property="documentDescription">
+       <string>Pagamentos Juridicos</string>
+      </void>
+      <void property="documentId">
+       <int>8702225</int>
+      </void>
+     </object>
+    </void>
+    <void method="add">
+     <object class="com.totvs.technology.ecmrestclient.cardindexpublisher.FormVO">
+      <void property="datasetName">
+       <string>ds_solicitacaoComprasNew</string>
+      </void>
+      <void property="documentDescription">
+       <string>New Solicitacão de Compras</string>
+      </void>
+      <void property="documentId">
+       <int>8702237</int>
+      </void>
+     </object>
+    </void>
    </object>
   </void>
  </object>
